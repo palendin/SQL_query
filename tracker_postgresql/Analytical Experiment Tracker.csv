@@ -1,0 +1,38 @@
+id,experiment_id,department,assay_type,hypothesis,start_date,owner,experiment_link,status
+1,HP1-20230830,RPD,HP,test,8/30/23,DS,Link,complete
+2,HP2-20230830,RPD,HP,test,8/30/23,GU,Link,complete
+3,HP3-20230905,RPD,HP,test,9/5/23,DS,Link,complete
+4,HP4-20230905,RPD,HP,test,9/5/23,GU,Link,complete
+5,HP5-20230906,RPD,HP,test,9/6/23,DS,Link,complete
+6,HP6-20230913,RPD,HP,test,9/13/23,DS,Link,complete
+7,HP7-20230913,RPD,HP,test,9/13/23,GU,Link,complete
+8,HP8-20230919,RPD,HP,test,9/19/23,DS,Link,complete
+9,HP9-20230919,RPD,HP,test,9/19/23,GU,Link,complete
+10,HP10-20231006,RPD,HP,EXP32&EXP42A,10/6/23,GU,Link,complete
+11,HP11-20231010,RPD,HP,Retest EXP32 Undiluted,10/10/23,GU,Link,complete
+12,HP12-20231013,RPD,HP,EXP47A,10/13/23,GU,Link,complete
+13,HP13-20231019,Pilot,HP,20230921 Media no digestion,10/19/23,RT,Link,complete
+14,HP14-20231020,Pilot,HP,20230921 Media with digestion,10/20/23,RT,Link,complete
+15,HP15-20231023,RPD,HP,EXP32 MEDIA,10/23/23,DS,Link,not started
+16,HP16-20231023,Pilot,HP,230928 Day 23 Media digestion test,10/23/23,RT,Link,complete
+17,HP17-20231026,RPD,HP,Pilot 20230824-20230921,10/26/23,DS,Link,complete
+18,HP18-20231026,RPD,HP,COassay hyp-dna exp 3,10/26/23,VA,Link,complete
+19,HP19-20231020,RPD,HP,EXP41 aggregates,10/20/23,DS,Link,complete
+20,HP20-20231025,Pilot,HP,20230928 Media with digestion,10/25/23,RT,Link,complete
+21,HP21-20231027,Pilot,HP,20230921/20230928 media with digestion and 0928 without digestion,10/27/23,RT,Link,complete
+22,HP22-20231101,RPD,HP,COassay hyp-dna exp 3,11/1/23,VA,Link,complete
+23,HP23-20231101,RPD,HP,Media digestion method development,11/1/23,RT,Link,complete
+24,HP24-20231102,RPD,HP,Digestion conditions for gelatin and media,11/2/23,RT,Link,complete
+25,HP25-20231106,RPD,HP,Test chloramine T treatment time 2x Chloramine T,11/6/23,RT,Link,complete
+26,HP26-20231106,RPD,HP,Test chloramine T treatment time 1x Chloramine T,11/6/23,RT,Link,complete
+27,HP27-20231107,RPD,HP,Test oxidation buffer effect to colorimetric reaction 5-30 min,11/7/23,RT,Link,complete
+28,HP28-20231108,RPD,HP,Test oxidation buffer effect to colorimetric reaction 30-90 min,11/8/23,RT,Link,complete
+29,HP29-20231109,RPD,HP,Pilot 0928 samples,11/9/23,DS,Link,complete
+30,HP30-20231109,RPD,HP,EXP 56A,11/9/23,VA,Link,not started
+31,HP31-20231109,Pilot,HP,"Rerun pilot 0803, 0810, 0817, 0824, 0831 batches with new biopsies",11/9/23,RT,Link,not started
+32,HP32-20231113,Pilot,HP,Rerun pilot 230921 and 230928 media with 30 min oxidation condition,11/13/23,RT,Link,complete
+33,HP33-20231114,RPD,HP,"Some pilot and fresh media, and FBS with 30 min oxidation condition",11/14/23,RT,Link,complete
+34,HP34-20231115,RPD,HP,Repeat HP33 with 100 uL 2x Chloramine T and 30 min oxidation time,11/15/23,RT,Link,complete
+35,HP35-20231116,RPD,HP,Test media background and gelatin preparation and storage,11/16/23,RT,Link,complete
+36,HP36-20231120,RPD,HP,Test interference of other amino acids without digestion to the results,11/20/23,RT,Link,complete
+37,HP37-20231120,RPD,HP,Test interference of other amino acids after digestion to the results,11/20/23,RT,Link,not started

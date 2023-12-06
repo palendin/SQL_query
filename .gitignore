@@ -1,0 +1,8 @@
+/__pycache__
+/archive
+/biomaterial_scaffold_postgresql
+/cell_count_postgresql
+/hp_biopsy_postgresql
+/hp_raw_postgresql
+/nucleocounter_raw_csv
+/HP_assay

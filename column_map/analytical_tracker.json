@@ -1,0 +1,11 @@
+{
+    "id" : "id",
+    "experiment_id" : "experiment_id",
+    "department" : "department",
+    "assay_type" : "assay_type",
+    "hypothesis" : "hypothesis",
+    "start_date" : "start_date",
+    "owner" : "owner",
+    "experiment_link" : "experiment_link",
+    "status" : "status"
+}

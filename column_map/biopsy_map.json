@@ -1,0 +1,14 @@
+{
+    "id" : "id",
+    "experiment_id" : "experiment_id",
+    "biopsy_id" : "biopsy_id",
+    "biomaterial_id" : "biomaterial_id",
+    "mg/biopsy mean" : "mg_per_biopsy_mean",
+    "mg/biopsy std" : "mg_per_biopsy_std",
+    "mg/ml mean" : "mg_per_ml_mean",
+    "mg/ml std" : "mg_per_ml_std",
+    "mg/cm2 mean" : "mg_per_cm2_mean",
+    "mg/cm2 std" : "mg_per_cm2_std",
+    "net weight mg" : "net_weight_mg",
+    "tissue areal density mg/cm2" : "tissue_areal_density_mg_per_cm2"
+}
