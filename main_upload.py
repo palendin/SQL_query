@@ -26,7 +26,6 @@ def resource_path(relative_path):
 
 # metabolite
 
-
 # biomaterials
 bm_sf_path = resource_path('biomaterial_scaffold_postgresql')
 insert_bm_sf_to_pgdb(bm_sf_path,file_name='biomaterial_and_scaffold_prep.xlsx',table_name=['biomaterial','scaffold','form_factor','press_parameter','autoclave_specification'])
