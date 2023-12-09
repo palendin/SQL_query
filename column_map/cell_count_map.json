@@ -1,0 +1,22 @@
+{
+    "Sample ID:" : "sample_id",
+    "Protocol:" : "protocol",
+    "Software version:" : "software_version",
+    "Secure Mode status:" : "secure_mode_status",
+    "Signed by:" : "signed_by",
+    "Sample Media:" : "sample_media",
+    "User:" : "user",
+    "Operator:" : "operator",
+    "Instrument:" : "instrument",
+    "Tags:" : "tags",
+    "Comments:" : "comments",
+    "Total (cells/ml):" : "total_cells_per_ml",
+    "Live (cells/ml):" : "live_cells_per_ml",
+    "Dead (cells/ml):" : "dead_cells_per_ml",
+    "Viability (%):" : "percent_viability",
+    "Diameter (um):" : "diameter_um",
+    "Aggregates (%):" : "percent_aggregates",
+    "Debris Index:" : "debris_index",
+    "Dilution Factor:" : "dilution_factor",
+    "Status:" : "status"
+}

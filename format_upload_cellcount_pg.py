@@ -3,6 +3,7 @@ import os, sys
 import psycopg2
 from psycopg2 import Error
 import shutil
+import gspread as gs
 
 # define the path to be base path of the PC + the folder containing the data source
 def resource_path(relative_path):
@@ -15,66 +16,70 @@ def resource_path(relative_path):
 
     return path
 
-# since the files have same format and doesnt need to be opened, can move to archive after finishing
+# process -> append to sheet -> upload to postgresql
 def cell_count_processing(root_directory, archive_directory):
     print(root_directory)
     # Loop through file in directory 
 
     df_list = []
-    for files in os.listdir(root_directory):
-        
-        # for each files + folder in the listdir, get the extension
-        ext = os.path.splitext(files)[-1].lower()
+    fileList = [files for files in os.listdir(root_directory) if files.endswith('.csv')]
 
-        # process only csv files
-        if ext == ".csv":
-            file_path = os.path.join(root_directory, files)
-        # make a text file if not exist
-        # txtfile_path = os.path.join(os.path.dirname(__file__), 'cellcount_processed_files.txt')
-        # if not os.path.exists(txtfile_path):
-        #     with open(txtfile_path, 'w'):
-        #         pass
-        # else:
-        #     pass
+    for files in fileList:
 
-        # remembered_folders_file = 'cellcount_processed_files.txt'
-        # with open(remembered_folders_file, 'r+') as f:
-        #     if file_path not in f.read():   
+    # for files in os.listdir(root_directory):
+    #     # for each files + folder in the listdir, get the extension
+    #     ext = os.path.splitext(files)[-1].lower()
 
-        #         try:
-        #             df = pd.read_csv(file_path)
-        #         except:
-        #             print('file not found')
-            try:
-                df = pd.read_csv(file_path)
-                df = df.iloc[:,0].str.split(':\t', expand=True)
-                df = df.set_index(0).transpose()
-                df_list.append(df)
+    #     # process only csv files
+    #     if ext == ".csv":
+        file_path = os.path.join(root_directory, files)
 
-                shutil.move(file_path, archive_directory)
-            except:
-                print('cannot read file or already exist in the archive. If duplicate file, it will still get appended to the csv file')
-                continue
-            
-    
-            #f.write(file_path + ',')  # -------- instead of writing the path to text, can push the file to archive folder  
+        try:
+            df = pd.read_csv(file_path)
+            df = df.iloc[:,0].str.split(':\t', expand=True)
+            df = df.set_index(0).transpose()
+            df_list.append(df)
+
+            # move files to archive folder after appending to list
+            shutil.move(file_path, archive_directory)
+        except:
+            print('cannot read file or already exist in the archive. If duplicate file, it will still get appended to the csv file')
+            continue
         
     try:
         # drops the column and reset with another index, renamed to 'id'
         # combined_df = pd.concat(df_list)[df.columns].reset_index(drop=True).rename_axis('id')
-        combined_df = pd.concat(df_list)[df.columns].reset_index(drop=True)
+        combined_df = pd.concat(df_list)[df.columns].reset_index(drop=True).iloc[:,1:]
         
-        # append to existing csv file, except the header
+        # append to existing csv file, except the header (for testing purposes)
         combined_df.to_csv("/Users/wayne/Documents/Programming/vscode/API/SQL_query/nucleocounter_raw_csv/compiled_cell_count/cell_count.csv", mode='a', header=False, index=False)
+        
+        # export by append to google spreadsheet
+        exportDF(combined_df)
 
-        #print(combined_df)
-        #combined_df.to_csv('test.csv')
+        # upload to postgresql
+
     except:
         print('no new files')
+    
+    finally:
+        quit()
 
 
+# using gspread to append to the existing spreadsheet in google doc
+def exportDF(df):
 
-    return combined_df
+    # get service account
+    gc = gs.service_account(filename='/Users/wayne/Documents/Programming/vscode/API/Google_API/service_account.json')
+
+    # open the file that you want data to append to
+    sh = gc.open_by_key('1ruMwYvR5RMSNG1I0EkmASiGAtgSx7Xjr3a_ModEVd2s')
+
+    worksheet = sh.sheet1 # assign sheet1
+    
+    # worksheet.update([masterDF.columns.values.tolist()] + masterDF.values.tolist())
+    # append to worksheet
+    worksheet.append_rows(df.values.tolist())
 
 
 # need to edit 12/5/2023
@@ -132,7 +137,7 @@ def insert_cellcount_csv_to_pg(combined_df, table_name):
         cur.executemany(query, data_values)
      
         connection.commit()
-        print('biomaterial upload success')
+        print('data from {} upload success'.format(table_name))
 
         # rows_to_upload = 50
         # chunk_size = 10
@@ -155,6 +160,9 @@ def insert_cellcount_csv_to_pg(combined_df, table_name):
 
 
 if __name__ == "__main__":
-    process_folder_path = resource_path('nucleocounter_raw_csv')
-    archive_folder_path = resource_path('nucleocounter_raw_csv/archive')
+    # choose path of the cell count folder and archive folder
+    process_folder_path = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data [UNDER CONSTRUCTION, DO NOT USE]/Instrument/nucleocounter raw files'
+    archive_folder_path = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data [UNDER CONSTRUCTION, DO NOT USE]/Instrument/nucleocounter raw files/Archive (Data Uploaded)'
+    #process_folder_path = resource_path('nucleocounter_raw_csv')
+    #archive_folder_path = resource_path('nucleocounter_raw_csv/archive')
     cell_count_processing(process_folder_path, archive_folder_path)
