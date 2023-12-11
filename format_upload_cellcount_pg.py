@@ -4,6 +4,7 @@ import psycopg2
 from psycopg2 import Error
 import shutil
 import gspread as gs
+import json
 
 # define the path to be base path of the PC + the folder containing the data source
 def resource_path(relative_path):
@@ -16,7 +17,7 @@ def resource_path(relative_path):
 
     return path
 
-# process -> append to sheet -> upload to postgresql
+# process -> append to g-sheet -> upload to postgresql
 def cell_count_processing(root_directory, archive_directory):
     print(root_directory)
     # Loop through file in directory 
@@ -46,24 +47,20 @@ def cell_count_processing(root_directory, archive_directory):
             print('cannot read file or already exist in the archive. If duplicate file, it will still get appended to the csv file')
             continue
         
-    try:
-        # drops the column and reset with another index, renamed to 'id'
-        # combined_df = pd.concat(df_list)[df.columns].reset_index(drop=True).rename_axis('id')
-        combined_df = pd.concat(df_list)[df.columns].reset_index(drop=True).iloc[:,1:]
-        
-        # append to existing csv file, except the header (for testing purposes)
-        combined_df.to_csv("/Users/wayne/Documents/Programming/vscode/API/SQL_query/nucleocounter_raw_csv/compiled_cell_count/cell_count.csv", mode='a', header=False, index=False)
-        
-        # export by append to google spreadsheet
-        exportDF(combined_df)
 
-        # upload to postgresql
-
-    except:
-        print('no new files')
+    # drops the column and reset with another index, renamed to 'id'
+    # combined_df = pd.concat(df_list)[df.columns].reset_index(drop=True).rename_axis('id')
+    combined_df = pd.concat(df_list)[df.columns].reset_index().iloc[:,2:] # skip the index and UTC time column
     
-    finally:
-        quit()
+    #append to existing csv file, except the header (for troubleshooting purposes)
+    combined_df.to_csv("/Users/wayne/Documents/Programming/vscode/API/SQL_query/nucleocounter_raw_csv/compiled_cell_count/cell_count.csv", mode='a', header=False, index=False)
+    
+    # export by append to google spreadsheet
+    exportDF(combined_df)
+
+    # note that postgresql has serial id, which will auto_index. do not need to worry about having the id column.
+    cell_count = "cell_count"
+    insert_cellcount_csv_to_pg(combined_df,cell_count)
 
 
 # using gspread to append to the existing spreadsheet in google doc
@@ -73,16 +70,14 @@ def exportDF(df):
     gc = gs.service_account(filename='/Users/wayne/Documents/Programming/vscode/API/Google_API/service_account.json')
 
     # open the file that you want data to append to
-    sh = gc.open_by_key('1ruMwYvR5RMSNG1I0EkmASiGAtgSx7Xjr3a_ModEVd2s')
+    sh = gc.open_by_key('1CFYh78GX4T_xjn-nOZT0ysmWQdJCYz7yh3cy97OOe1g') # ('1ruMwYvR5RMSNG1I0EkmASiGAtgSx7Xjr3a_ModEVd2s')
 
-    worksheet = sh.sheet1 # assign sheet1
+    worksheet = sh.worksheet("cell_counter") # assign sheet
     
-    # worksheet.update([masterDF.columns.values.tolist()] + masterDF.values.tolist())
     # append to worksheet
     worksheet.append_rows(df.values.tolist())
 
 
-# need to edit 12/5/2023
 def insert_cellcount_csv_to_pg(combined_df, table_name):
     df = combined_df
     try:
@@ -94,18 +89,18 @@ def insert_cellcount_csv_to_pg(combined_df, table_name):
         port=5432)
         
         cur = connection.cursor()
-
-        # need mapping for cell count
-        # if table_name == "biopsy_result":
-        # column_map = "/Users/wayne/Documents/Programming/vscode/API/SQL_query/column_map/biopsy_map.json"
-        # json file maps csv column names to postgresql column names
-        # with open(column_map, 'r') as file:
-        #     map = json.load(file)
-
+    
+        # nmapping for cell count
+        if table_name == "cell_count":
+            column_map = "/Users/wayne/Documents/Programming/vscode/API/SQL_query/column_map/cell_count_map.json"
+            # json file maps csv column names to postgresql column names
+            with open(column_map, 'r') as file:
+                map = json.load(file)
 
         df = df.fillna(0).replace([0],[None])
-        df = df[df['id'].notna()] # get all rows that does not have null id
-            # Check if the table exists
+        df = df[df['Sample ID'].notna()] # get all rows that does not have null sample id
+
+        # Check if the table exists
         query = f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s)"
         cur.execute(query, (table_name,))
         table_exists = cur.fetchone()[0]
@@ -116,26 +111,25 @@ def insert_cellcount_csv_to_pg(combined_df, table_name):
             print(f"The table '{table_name}' does not exist.")
             raise Exception('create table in postgresql first with desired names. Make sure json names match them')
 
-
+    
         # column map
-        postgresql_columns = df.columns
+        postgresql_columns = []
+
         for col in df.columns:
             postgresql_column_name = map.get(col, col)
             postgresql_columns.append(postgresql_column_name)
-    
+
         # Generate the column names dynamically for postgresql query format
         columns = ', '.join(postgresql_columns)
-    
+
         # Generate the placeholders for the VALUES clause based on the number of columns
         placeholders = ', '.join(['%s'] * len(df.columns))
-
         # Create the INSERT query (will insert even if duplicate, but conflict will dictates what it will do
-        query = f'''INSERT INTO biomaterial_scaffold.{table_name}({columns}) VALUES ({placeholders}) ON CONFLICT (id) DO NOTHING'''
-
+        query = f'''INSERT INTO instrument.{table_name}({columns}) VALUES ({placeholders}) ''' #ON CONFLICT (id) DO NOTHING'''
 
         data_values = [tuple(row) for _, row in df.iterrows()]
         cur.executemany(query, data_values)
-     
+    
         connection.commit()
         print('data from {} upload success'.format(table_name))
 

@@ -199,6 +199,7 @@ create table biomaterial_scaffold.autoclave_specification(
     total_time_min int
 )
 
+
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
 --schema name seed_train
@@ -219,6 +220,36 @@ create table biomaterial_scaffold.autoclave_specification(
 
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
+
+--instrument
+drop table if exists instrument.cell_count;
+create table instrument.cell_count(
+    id serial primary key not null,
+    sample_id varchar,
+    protocol varchar,
+	software_version varchar,
+	secure_mode_status varchar,
+    signed_by varchar,
+	sample_media varchar,
+	admin_user varchar,
+	operator varchar,
+	instrument varchar,
+	tags varchar,
+	comments text,
+	total_cells_per_ml numeric,
+	live_cells_per_ml numeric,
+	dead_cells_per_ml numeric,
+	percent_viability float,
+	diameter_um float,
+	percent_aggregates float,
+	debris_index integer,
+	dilution_factor float,
+	status varchar
+)
+
+
+
+
 
 --INSERT into the same row will change the specified value 
 --INSERT INTO analytical_db.analytical_tracker (id, start_date) VALUES (1, '11/11/2023');
