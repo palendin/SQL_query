@@ -248,9 +248,6 @@ create table instrument.cell_count(
 )
 
 
-
-
-
 --INSERT into the same row will change the specified value 
 --INSERT INTO analytical_db.analytical_tracker (id, start_date) VALUES (1, '11/11/2023');
 
@@ -262,3 +259,40 @@ create table instrument.cell_count(
 --copy pizza_schema.hp_assay
 --from '/Library/PostgreSQL/15/pizza_sales/HP_assay_master_data.csv'
 --delimiter ',' csv header;
+
+
+-- changing primary key to serial id primary key
+--Create a new serial column:
+ALTER TABLE analytical_db.biopsy_result
+ADD COLUMN new_id SERIAL;
+
+--Update the new column with values from the old column
+UPDATE analytical_db.biopsy_result
+SET new_id = id;
+
+--Drop the old column and rename the new one:
+ALTER TABLE analytical_db.biopsy_result
+	DROP COLUMN id;
+	
+ALTER TABLE analytical_db.biopsy_result
+	RENAME COLUMN new_id TO id; --column will be added to the end
+
+
+
+-- create a serial id without having to drop the column or the whole table and retain the column orders
+CREATE SEQUENCE t_seq INCREMENT BY 1;
+SELECT setval('t_seq', (SELECT max(id) FROM analytical_db.hydroxyproline_raw));
+
+ALTER TABLE analytical_db.hydroxyproline_raw ALTER COLUMN id SET DEFAULT nextval('t_seq');
+
+
+
+--editing value in postgresql
+UPDATE analytical_db.biopsy_result
+SET experiment_id = 'HP45-20231201'
+WHERE experiment_id LIKE '%HP45%'
+--WHERE experiment_id = 'HP41-20231128'
+
+--edete specific values
+DELETE FROM analytical_db.hydroxyproline_raw
+WHERE column_name = 'some_value';

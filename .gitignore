@@ -5,4 +5,6 @@
 /hp_biopsy_postgresql
 /hp_raw_postgresql
 /nucleocounter_raw_csv
+/tools_and_functions/HP_assay
+/tracker_postgresql
 /HP_assay
