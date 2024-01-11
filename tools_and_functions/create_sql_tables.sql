@@ -62,7 +62,7 @@ create table tracker.cell_line_development(
 --table name = hydroxyproline, biopsy_result
 drop table if exists analytical_db.hydroxyproline;  
 create table analytical_db.hydroxyproline(
-    id integer primary key not null,
+    id serial primary key not null,
     experiment_id varchar,
     sample_id varchar,
     sample_type varchar,
@@ -99,7 +99,7 @@ create table analytical_db.hydroxyproline(
 
 drop table if exists analytical_db.biopsy_result;  
 create table analytical_db.biopsy_result(
-    id integer primary key not null,
+    id serial primary key not null,
     experiment_id varchar,
     biopsy_id varchar,
     biomaterial_id varchar,
@@ -206,7 +206,26 @@ create table biomaterial_scaffold.autoclave_specification(
 
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
---schema name tissue_production
+--schema name tissue_production 
+--table name run_detail, run_parameter, sample_plan, seed_operation, process_values, feed_operation, media_sampling, fresh_media_sampling, biopsy_sampling
+--(use serial auto index)
+drop table if exists tissue_production.run_detail;
+create table tissue_production.run_detail(
+    id serial primary key not null,
+    experiment_id
+    vessel_type
+    run_description
+    vessel_number
+    run_id
+    scaffold_id
+    vial_id
+    culture_duration_days
+    media_recipe
+    Incubator
+    start_date
+    end_date
+    hide_id
+)
 
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
@@ -249,33 +268,16 @@ create table instrument.cell_count(
 
 
 --INSERT into the same row will change the specified value 
---INSERT INTO analytical_db.analytical_tracker (id, start_date) VALUES (1, '11/11/2023');
+INSERT INTO analytical_db.analytical_tracker (id, start_date) VALUES (1, '11/11/2023');
 
 --do not drop table and create table again if wanting to add new columms
---ALTER TABLE analytical_db.analytical_tracker	 
---ADD COLUMN new_column varchar
+ALTER TABLE analytical_db.analytical_tracker	 
+ADD COLUMN new_column varchar
 
 --import csv cotaining the data
---copy pizza_schema.hp_assay
---from '/Library/PostgreSQL/15/pizza_sales/HP_assay_master_data.csv'
---delimiter ',' csv header;
-
-
--- changing primary key to serial id primary key
---Create a new serial column:
-ALTER TABLE analytical_db.biopsy_result
-ADD COLUMN new_id SERIAL;
-
---Update the new column with values from the old column
-UPDATE analytical_db.biopsy_result
-SET new_id = id;
-
---Drop the old column and rename the new one:
-ALTER TABLE analytical_db.biopsy_result
-	DROP COLUMN id;
-	
-ALTER TABLE analytical_db.biopsy_result
-	RENAME COLUMN new_id TO id; --column will be added to the end
+copy pizza_schema.hp_assay
+from '/Library/PostgreSQL/15/pizza_sales/HP_assay_master_data.csv'
+delimiter ',' csv header;
 
 
 
@@ -287,12 +289,11 @@ ALTER TABLE analytical_db.hydroxyproline_raw ALTER COLUMN id SET DEFAULT nextval
 
 
 
---editing value in postgresql
+--replacing value in a specific column with SET by filtering the desired name 
 UPDATE analytical_db.biopsy_result
 SET experiment_id = 'HP45-20231201'
 WHERE experiment_id LIKE '%HP45%'
---WHERE experiment_id = 'HP41-20231128'
 
---edete specific values
+--delete specific values
 DELETE FROM analytical_db.hydroxyproline_raw
 WHERE column_name = 'some_value';
