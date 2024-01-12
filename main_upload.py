@@ -24,13 +24,23 @@ sheet_list = ['biomaterial', 'scaffold', 'form factor', 'press parameter', 'auto
 table_name=['biomaterial','scaffold','form_factor','press_parameter','autoclave_specification']
 insert_bm_sf_to_pgdb(file_id, sheet_list, table_name)
 
-# # upload analytcal trackers from g-drive
+# upload analytcal trackers from g-drive
 file_id = '1MOuCpubEbwf7QE_tU5IfL_pqFwtDukOqH5o_9Z0WnHM'
 sheet_name = "Tracker" # sheet_name variable is read by the function read_gsheet
 table_name = 'analytical_tracker'
 insert_tracker_data_to_pgdb(file_id, sheet_name, table_name)
 
 # upload cell culture tracker from g-drive
+file_id = '1PxgbZfxgc2cVEJooCtSvNgFlVabnHUUcy9Q_R8_xP4g' # cell culture tracker
+sheet_name = 'tracker'
+table_name = 'cell_culture_tracker'
+insert_tracker_data_to_pgdb(file_id, sheet_name, table_name)
+
+# upload media prep from g-drive
+file_id = '1-2LQo-Xj4bdmy0EeyYNbvLnoXHKTN-QoGupEgimmT2c'
+sheet_name = 'Media Prep'
+table_name = 'media_prep'
+insert_tracker_data_to_pgdb(file_id, sheet_name, table_name)
 
 # upload seed train from g-drive
 

@@ -48,7 +48,8 @@ def insert_hp_csv_data_to_pgdb(data, table):
         try:
             # Replace NaN values with None
             df = data.where(pd.notna(data), None)
-                    # replace empty date with None
+            
+            # replace empty date with None
             try:
                 df['reaction_date'] = df['reaction_date'].replace('01-00-1900',0).replace([0],[None])
             except:

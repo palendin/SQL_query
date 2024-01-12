@@ -33,14 +33,16 @@ create table tracker.media_prep(
     id integer primary key not null,
 	media_id varchar,
     media_recipe varchar,
+    media_key varchar,
     media_type varchar,
     volume_to_make_L float,
     prep_date date,
     operator varchar,
+    experiment_for varchar,
     source_link varchar,
     total_material_cost float,
     sample_id varchar,
-);
+)
 
 
 drop table if exists tracker.cell_line_development;
@@ -212,19 +214,177 @@ create table biomaterial_scaffold.autoclave_specification(
 drop table if exists tissue_production.run_detail;
 create table tissue_production.run_detail(
     id serial primary key not null,
-    experiment_id
-    vessel_type
-    run_description
-    vessel_number
-    run_id
-    scaffold_id
-    vial_id
-    culture_duration_days
-    media_recipe
-    Incubator
-    start_date
-    end_date
-    hide_id
+    experiment_id varchar,
+    vessel_type varchar,
+    run_description text,
+    vessel_number int,
+    run_id varchar,
+    scaffold_id varchar,
+    vial_id varchar,
+    culture_duration_days int,
+    media_recipe varchar,
+    Incubator varchar,
+    start_date date
+    end_date date
+    hide_id varchar
+)
+
+drop table if exists tissue_production.run_parameter;
+create table tissue_production.run_parameter(
+    id serial primary key not null,
+    run_id varchar,
+    target_working_volume_ml float,
+    target_seed_area_cm2 int,
+    target_seed_density_cells_per_cm2 numeric,
+    target_seed_number numeric,
+    temperature_SP_C float,
+    CO2%_SP float,
+    O2%_SP float,
+    pH_SP float,
+    rocking_hz_SP float,
+    rocking_angle_SP float,
+    feed_rate_mlpm_SP float,
+    outlet_rate_mlpm_SP float,
+    vessel_pressure_psi_SP float,
+    actuator_wait_mins float,
+    feed_delay float,
+    rest_time_hr float,
+    stirr_init_rpm int,
+    stirr_final_rpm int,
+    init_air_flow_mlpm float,
+    final_air_flow_mlpm float,
+    recirculation_rate_mlpm float,
+    process_mode varchar
+)
+
+drop table if exists tissue_production.sample_plan;
+create table tissue_production.sample_plan(
+    id serial primary key not null,
+    run_id varchar,
+    sampling_ETT_day float,
+    media_sample varchar,
+    biopsy varchar,
+    feed varchar,
+    monitor varchar,
+    hide_id varchar,
+    feed_id varchar,
+    sample_id varchar,
+    biopsy_id varchar,
+)
+
+drop table if exists tissue_production.seed_operation;
+create table tissue_production.seed_operation(
+    id serial primary key not null,
+    run_id varchar,
+    seed_volume_ml float,
+    concentration_cells_per_ml numeric,
+    seed_number numeric,
+    seed_date datetime,
+    flood_time_hrs int,
+    media_id varchar,
+    media_volume_ml float,
+    rocking_start_time datetime,
+    operator varchar,
+    comment text,
+)
+
+drop table if exists tissue_production.process_values;
+create table tissue_production.process_values(
+    id serial primary key not null,
+    run_id varchar,
+    monitor_date datetime,
+    volume_ml float,
+    temperature_C float,
+    %CO2 float,
+    %O2 float,
+    pH float,
+    rocking_hz float,
+    rocking_angle float,
+    feed_rate_mlpm float,
+    outlet_rate_mlpm float,
+    vessel_pressure_psi float,
+    stirr_rpm int,
+    air_flow_mlpm float,
+    tank_weight_g float,
+    base_weight_g float,
+    acid_weight_g float,
+    feed_weight_g float,
+    feed_change_weight_g float,
+    waste_weight_g float,
+    waste_change_weight_g float
+)
+
+drop table if exists tissue_production.feed_operation;
+create table tissue_production.feed_operation(
+    id serial primary key not null,
+    feed_id varchar,
+    feed_date varchar,
+    media_id varchar,
+    media_exchange_volume_ml float,
+    time_out datetime,
+    time_in datetime,
+    operator varchar,
+    comment text
+)
+
+drop table if exists tissue_production.media_sampling;
+create table tissue_production.media_sampling(
+    id serial primary key not null,
+    sample_id varchar,
+    sample_date datetime,
+    operator varchar,
+    comment text
+)
+
+drop table if exists tissue_production.fresh_media_sampling;
+create table tissue_production.fresh_media_sampling(
+    id serial primary key not null,
+    experiment_id varchar,
+    sample_id varchar,
+    sampling_ETT_day float,
+    sample_date datetime,
+    operator varchar,
+    comment text,
+)
+
+drop table if exists tissue_production.biopsy_sampling;
+create table tissue_production.biopsy_sampling(
+    id serial primary key not null,
+    biopsy_id varchar,
+    biopsy_date datetime,
+    biopsy_purpose text,
+    biopsy_diameter_mm float,
+    num_biopsy_taken int,
+    storage_location varchar,
+    operator varchar,
+    comment text
+)
+
+drop table if exists tissue_production.hide_harvest;
+create table tissue_production.hide_harvest(
+    id serial primary key not null,
+    run_id varchar,
+    harvest_date datetime,
+    wet_weight_g float,
+    thickness_1_mm float,
+    thickness_2_mm float,
+    thickness_3_mm float,
+    thickness_4_mm float,
+    thickness_5_mm float,
+    thickness_6_mm float,
+    avg_thickness_mm float,
+    mechanical_strength float,
+    fiber_protrusion varchar,
+    surface_smoothness varchar,
+    operator varchar,
+    comment text
+)
+
+drop table if exists tissue_production.hide_harvest;
+create table tissue_production.hide_harvest(
+    id serial primary key not null,
+    flex2_id varchar,
+    sample_id varchar
 )
 
 -----------------------------------------------------------------------------------------------------
@@ -288,7 +448,6 @@ SELECT setval('t_seq', (SELECT max(id) FROM analytical_db.hydroxyproline_raw));
 ALTER TABLE analytical_db.hydroxyproline_raw ALTER COLUMN id SET DEFAULT nextval('t_seq');
 
 
-
 --replacing value in a specific column with SET by filtering the desired name 
 UPDATE analytical_db.biopsy_result
 SET experiment_id = 'HP45-20231201'
@@ -297,3 +456,8 @@ WHERE experiment_id LIKE '%HP45%'
 --delete specific values
 DELETE FROM analytical_db.hydroxyproline_raw
 WHERE column_name = 'some_value';
+
+--alter data type
+
+--join functions:
+--https://www.freecodecamp.org/news/sql-join-types-inner-join-vs-outer-join-example/#:~:text=The%20biggest%20difference%20between%20an,table%20in%20the%20resulting%20table.

@@ -1,0 +1,16 @@
+{
+    "id" : "id",
+    "Media ID" : "media_id",
+    "Media Recipe" : "media_recipe",
+    "Media Key" : "media_key",
+    "Media Type" : "media_type",
+    "Volume to Make [L]" : "volume_to_make_l",
+    "Prep Date" : "prep_date",
+    "Operator" : "operator",
+    "Experiment for" : "experiment_for",
+    "Source Link" : "source_link",
+    "Total Material Cost [$]" : "total_material_cost",
+    "status" : "status",
+    "QC Sample ID" : "sample_id"
+}
+
