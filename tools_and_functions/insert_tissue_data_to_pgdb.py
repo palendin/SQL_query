@@ -38,7 +38,6 @@ def insert_tissue_data_to_pgdb(data, table):
         
         cur = connection.cursor()
 
-
         df = data.replace('01-00-1900',0).replace([0],[None])
 
         # # Check if the table exists
