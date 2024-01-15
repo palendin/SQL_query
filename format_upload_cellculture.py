@@ -28,13 +28,13 @@ def tissue_production_processing(root_directory, archive_directory):
             # name for each tab in the excel file. This is also the table name in postgresql
             sheet_names = ['run_detail', 'run_parameter','sample_plan','seed_operation','process_values','feed_operation',
                            'media_sampling','fresh_media_sampling','biopsy_sampling','hide_harvest','run_deviation', 'flex2_id_conversion']
-
+            sheet_names = ['process_values']
             # used for re-arranging cols, assuming they match cols in file
             run_detail_column_order = ['experiment_id','vessel_type','run_description','vessel_number','run_id','scaffold_id','vial_id','culture_duration_days','media_recipe','Incubator','start_date','end_date','hide_id']
-            run_parameter_column_order = ['run_id','target_working_volume_ml','target_seed_area_cm2','target_seed_density_cells_per_cm2','target_seed_number','temperature_SP_C','CO2%_SP','O2%_SP','pH_SP','rocking_hz_SP','rocking_angle_SP','feed_rate_mlpm_SP','outlet_rate_mlpm_SP','vessel_pressure_psi_SP','actuator_wait_mins','feed_delay','rest_time_hr','stirr_init_rpm','stirr_final_rpm','init_air_flow_mlpm','final_air_flow_mlpm','recirculation_rate_mlpm','process_mode']
+            run_parameter_column_order = ['run_id','target_working_volume_ml','target_seed_area_cm2','target_seed_density_cells_per_cm2','target_seed_number','temperature_SP_C','CO2_SP','O2_SP','pH_SP','rocking_hz_SP','rocking_angle_SP','feed_rate_mlpm_SP','outlet_rate_mlpm_SP','vessel_pressure_psi_SP','actuator_wait_mins','feed_delay','rest_time_hr','stirr_init_rpm','stirr_final_rpm','init_air_flow_mlpm','final_air_flow_mlpm','recirculation_rate_mlpm','process_mode']
             sample_plan_column_order = ['run_id','sampling_ETT_day','media_sample','biopsy','feed','monitor','hide_id','feed_id','sample_id','biopsy_id']
             seed_operation_column_order = ['run_id','seed_volume_ml','concentration_cells_per_ml','seed_number','seed_date','flood_time_hrs','media_id','media_volume_ml','rocking_start_time','operator','comment']
-            process_values_column_order = ['run_id','monitor_date','volume_ml','temperature_C','%CO2','%O2','pH','rocking_hz','rocking_angle','feed_rate_mlpm','outlet_rate_mlpm','vessel_pressure_psi','stirr_rpm','air_flow_mlpm']
+            process_values_column_order = ['run_id','monitor_date','volume_ml','temperature_C','CO2','O2','pH','rocking_hz','rocking_angle','feed_rate_mlpm','outlet_rate_mlpm','vessel_pressure_psi','stirr_rpm','air_flow_mlpm']
             feed_operation_column_order = ['feed_id','feed_date','media_id','media_exchange_volume_ml','time_out','time_in','operator','comment']
             media_sampling_column_order = ['sample_id','sample_date','operator','comment']
             fresh_media_sampling_column_order = ['experiment_id','sample_id','sampling_ETT_day','sample_date','operator','comment']
@@ -53,20 +53,23 @@ def tissue_production_processing(root_directory, archive_directory):
             for i, sheet in enumerate(sheet_names):
 
                 # read each sheet, remove empty rows
-                if i == 7: #fresh_media_sampling
+                if i == 7: #fresh_media_sampling has additional rows that we dont need
                     data = df[sheet].iloc[:,0:6]
                 else:
                     data = df[sheet]
                 
-                data = data.where(pd.notna(data), None)
+                data = data.where(pd.notna(data),None) # df.where replaces NaN with None
                 data = data.dropna(axis=0,subset=[data.columns[0]])
-
-                # re-order columns
+                print(data)
+                # re-order columns (edit column order if needed)
                 data = data[arranged_columns_list[i]]
 
                 # upload
                 insert_tissue_data_to_pgdb(data=data,table=sheet)
-            
+
+            # move CC folder to archive after uploading
+            shutil.move(folder_path, archive_directory)
+        
 
         else:
             print('continuing')
@@ -81,5 +84,6 @@ def tissue_production_processing(root_directory, archive_directory):
 #     return new_column
 
 if __name__ == "__main__":
-    path = 'Cell_culture'
-    tissue_production_processing(root_directory=path, archive_directory=None)
+    path = resource_path('Tissue')
+    archive = resource_path('Tissue/archive')
+    tissue_production_processing(root_directory=path, archive_directory=archive)

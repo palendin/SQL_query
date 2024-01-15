@@ -105,6 +105,6 @@ def process_hp_data_and_insert_to_pg(root_directory, archive_path):
                 
 if __name__ == "__main__":
     path = resource_path('HP_assay') #where the experiment folders are
-    archive_path = '/Users/wayne/Documents/Programming/vscode/API/SQL_query/HP_assay/archive'
+    archive_path = resource_path('HP_assay/archive')
     process_hp_data_and_insert_to_pg(path,archive_path)
 

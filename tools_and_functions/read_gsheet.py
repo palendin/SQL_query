@@ -1,13 +1,14 @@
 import pandas as pd
 import gspread as gs
+import os
 
-# path = os.getcwd()
-# up_path = os.path.join(os.path.dirname(path)) 1 lv up (should give you SQL_query path)
-# print(up_path)
+
 
 def read_gsheet(file_id, sheet_name):
 
-    gc = gs.service_account(filename='C:\\Users\\wayne\\.vscode\\API\\Google_API\\service_account.json')
+    vscode_path = os.path.dirname(os.path.dirname(os.getcwd())) # when running as a function within SQL_query folder, it takes you two levels up
+    service_account = os.path.join(vscode_path,'API/Google_API/service_account.json')
+    gc = gs.service_account(filename=service_account)
 
     # open the file that you want data to append to
     sh = gc.open_by_key(file_id)
@@ -25,8 +26,11 @@ def read_gsheet(file_id, sheet_name):
 
 def read_gsheet_all_tabs(file_id):
 
+    vscode_path = os.path.dirname(os.path.dirname(os.getcwd())) # when running as a function within SQL_query folder, it takes you two levels up
+    service_account = os.path.join(vscode_path,'API/Google_API/service_account.json') 
+
     df_list = []
-    gc = gs.service_account(filename='C:\\Users\wayne\\.vscode\\API\\Google_API\\service_account.json')
+    gc = gs.service_account(filename=service_account)
 
     # open the file that you want data to append to
     sh = gc.open_by_key(file_id)

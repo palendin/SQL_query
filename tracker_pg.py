@@ -137,7 +137,7 @@ def insert_tracker_data_to_pgdb(file_id, sheet_name, table_name):
         postgresql_columns = []
         table_map = ['analytical_tracker', 'media_prep']
         if table_name in table_map:
-            column_map = os.path.join(os.getcwd(),f'column_map\{table_name}.json') #refers to json file paths dynamically assuming same folder structure
+            column_map = os.path.join(os.getcwd(),f'column_map/{table_name}.json') #refers to json file paths dynamically assuming same folder structure
             with open(column_map, 'r') as file:
                 map = json.load(file)
             for col in df.columns:

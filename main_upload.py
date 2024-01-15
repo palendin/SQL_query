@@ -1,6 +1,8 @@
 from bm_sf_pg import insert_bm_sf_to_pgdb
 from tracker_pg import insert_tracker_data_to_pgdb
 from hp_data_pg import process_hp_data_and_insert_to_pg
+from format_upload_cellcount_pg import cell_count_processing
+from format_upload_cellculture import tissue_production_processing
 import os, sys
 
 
@@ -43,6 +45,11 @@ table_name = 'media_prep'
 insert_tracker_data_to_pgdb(file_id, sheet_name, table_name)
 
 # upload seed train from g-drive
+
+# upload cell count from g-drive
+process_folder_path = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data [Trained User Only]/Instrument/nucleocounter raw files'
+archive_folder_path = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data [Trained User Only]/Instrument/nucleocounter raw files/Archive (Data Uploaded)'
+cell_count_processing(process_folder_path, archive_folder_path)
 
 # upload tissue production from g-drive
 

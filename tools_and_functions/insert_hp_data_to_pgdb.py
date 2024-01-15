@@ -26,13 +26,15 @@ def resource_path(relative_path):
 @retry(stop=stop_after_attempt(10), wait=wait_fixed(5))
 def insert_hp_csv_data_to_pgdb(data, table):
     
-    if table == "biopsy_result":
-        column_map = "/Users/wayne/Documents/Programming/vscode/API/SQL_query/column_map/biopsy_map.json"
-    if table == "hydroxyproline_raw":
-        column_map = "/Users/wayne/Documents/Programming/vscode/API/SQL_query/column_map/hp_assay_map.json"
-    # json file maps csv column names to postgresql column names
-    with open(column_map, 'r') as file:
-        map = json.load(file)
+    # if table == "biopsy_result":
+    #     column_map = "/Users/wayne/Documents/Programming/vscode/API/SQL_query/column_map/biopsy_map.json"
+    # if table == "hydroxyproline_raw":
+    #     column_map = "/Users/wayne/Documents/Programming/vscode/API/SQL_query/column_map/hp_assay_map.json"
+    # # json file maps csv column names to postgresql column names
+    # with open(column_map, 'r') as file:
+    #     map = json.load(file)
+
+
 
     # connect to db
     try:
@@ -71,6 +73,9 @@ def insert_hp_csv_data_to_pgdb(data, table):
 
         # Use the mapping to determine the corresponding PostgreSQL column name
         postgresql_columns = []
+        column_map = os.path.join(os.getcwd(),f'column_map/{table}.json') 
+        with open(column_map, 'r') as file:
+            map = json.load(file)
         for col in df.columns:
             postgresql_column_name = map.get(col, col)
             postgresql_columns.append(postgresql_column_name)

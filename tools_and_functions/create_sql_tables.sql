@@ -224,8 +224,8 @@ create table tissue_production.run_detail(
     culture_duration_days int,
     media_recipe varchar,
     Incubator varchar,
-    start_date date
-    end_date date
+    start_date date,
+    end_date date,
     hide_id varchar
 )
 
@@ -238,8 +238,8 @@ create table tissue_production.run_parameter(
     target_seed_density_cells_per_cm2 numeric,
     target_seed_number numeric,
     temperature_SP_C float,
-    CO2%_SP float,
-    O2%_SP float,
+    CO2_SP float,
+    O2_SP float,
     pH_SP float,
     rocking_hz_SP float,
     rocking_angle_SP float,
@@ -279,11 +279,11 @@ create table tissue_production.seed_operation(
     seed_volume_ml float,
     concentration_cells_per_ml numeric,
     seed_number numeric,
-    seed_date datetime,
+    seed_date timestamp,
     flood_time_hrs int,
     media_id varchar,
     media_volume_ml float,
-    rocking_start_time datetime,
+    rocking_start_time timestamp,
     operator varchar,
     comment text,
 )
@@ -292,11 +292,11 @@ drop table if exists tissue_production.process_values;
 create table tissue_production.process_values(
     id serial primary key not null,
     run_id varchar,
-    monitor_date datetime,
+    monitor_date timestamp,
     volume_ml float,
     temperature_C float,
-    %CO2 float,
-    %O2 float,
+    CO2 float,
+    O2 float,
     pH float,
     rocking_hz float,
     rocking_angle float,
@@ -318,11 +318,11 @@ drop table if exists tissue_production.feed_operation;
 create table tissue_production.feed_operation(
     id serial primary key not null,
     feed_id varchar,
-    feed_date varchar,
+    feed_date timestamp,
     media_id varchar,
     media_exchange_volume_ml float,
-    time_out datetime,
-    time_in datetime,
+    time_out timestamp,
+    time_in timestamp,
     operator varchar,
     comment text
 )
@@ -331,7 +331,7 @@ drop table if exists tissue_production.media_sampling;
 create table tissue_production.media_sampling(
     id serial primary key not null,
     sample_id varchar,
-    sample_date datetime,
+    sample_date timestamp,
     operator varchar,
     comment text
 )
@@ -342,7 +342,7 @@ create table tissue_production.fresh_media_sampling(
     experiment_id varchar,
     sample_id varchar,
     sampling_ETT_day float,
-    sample_date datetime,
+    sample_date timestamp,
     operator varchar,
     comment text,
 )
@@ -351,7 +351,7 @@ drop table if exists tissue_production.biopsy_sampling;
 create table tissue_production.biopsy_sampling(
     id serial primary key not null,
     biopsy_id varchar,
-    biopsy_date datetime,
+    biopsy_date timestamp,
     biopsy_purpose text,
     biopsy_diameter_mm float,
     num_biopsy_taken int,
@@ -364,7 +364,7 @@ drop table if exists tissue_production.hide_harvest;
 create table tissue_production.hide_harvest(
     id serial primary key not null,
     run_id varchar,
-    harvest_date datetime,
+    harvest_date timestamp,
     wet_weight_g float,
     thickness_1_mm float,
     thickness_2_mm float,
@@ -380,8 +380,16 @@ create table tissue_production.hide_harvest(
     comment text
 )
 
-drop table if exists tissue_production.hide_harvest;
-create table tissue_production.hide_harvest(
+drop table if exists tissue_production.run_deviation;
+create table tissue_production.run_deviation(
+    id serial primary key not null,
+    run_id varchar,
+    deviation varchar,
+    comments text
+)
+
+drop table if exists tissue_production.flex2_id_conversion;
+create table tissue_production.flex2_id_conversion(
     id serial primary key not null,
     flex2_id varchar,
     sample_id varchar
@@ -400,7 +408,7 @@ create table tissue_production.hide_harvest(
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
 
---instrument
+--instrument (cell_count, flex2)
 drop table if exists instrument.cell_count;
 create table instrument.cell_count(
     id serial primary key not null,
@@ -424,6 +432,52 @@ create table instrument.cell_count(
 	debris_index integer,
 	dilution_factor float,
 	status varchar
+)
+
+
+drop table if exists instrument.flex2;
+create table instrument.flex2(
+	id serial primary key not null,
+    date_time timestamp,
+    comment text,
+    sample_id varchar,
+    sample_type varchar,
+    pH float,
+    PO2 float,
+    PCO2 float,
+    Gln float,
+    Glu float,
+    Gluc float,
+    Lac float,
+    NH4 float,
+    Na float,
+    K float,
+    Ca float,
+    osm float,
+    pre_dilution_multiplier int,
+    vessel_id varchar,
+    batch_id varchar,
+    cell_type varchar,
+    vessel_temperature_C float,
+    vessel_pressure_psi float,
+    sparging_O2 float,
+    pH_at_temp float,
+    PO2_at_temp float,
+    PCO2_at_temp float,
+    O2_saturation float,
+    CO2_saturation float,
+    HCO3 float,
+    pH_gas_flow_time float,
+    chemistry_flow_time float,
+    chemistry_dilution_ratio varchar,
+    tray_location varchar,
+    chemistry_cartridge_lot_number int,
+    chemistry_card_lot_number int,
+    gas_cartridge_lot_number int,
+    gas_card_lot_number int,
+    time_in_tray varchar,
+    sample_time timestamp,
+    operator varchar
 )
 
 
@@ -457,7 +511,9 @@ WHERE experiment_id LIKE '%HP45%'
 DELETE FROM analytical_db.hydroxyproline_raw
 WHERE column_name = 'some_value';
 
---alter data type
+--alter data type to timestamp
+ALTER TABLE tissue_production.feed_operation 
+ALTER COLUMN feed_date TYPE timestamp without time zone USING feed_date::timestamp without time zone
 
 --join functions:
 --https://www.freecodecamp.org/news/sql-join-types-inner-join-vs-outer-join-example/#:~:text=The%20biggest%20difference%20between%20an,table%20in%20the%20resulting%20table.

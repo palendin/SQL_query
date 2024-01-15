@@ -40,33 +40,33 @@ def insert_tissue_data_to_pgdb(data, table):
 
         df = data.replace('01-00-1900',0).replace([0],[None])
 
-        # # Check if the table exists
-        # query = f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s)"
-        # cur.execute(query, (table,))
-        # table_exists = cur.fetchone()[0]
+        # Check if the table exists
+        query = f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s)"
+        cur.execute(query, (table,))
+        table_exists = cur.fetchone()[0]
 
-        # if table_exists:
-        #     print(f"The table '{table}' exists.")
-        # else:
-        #     print(f"The table '{table}' does not exist.")
-        #     raise Exception('create table in postgresql first with desired names. Make sure json names match them')
+        if table_exists:
+            print(f"The table '{table}' exists.")
+        else:
+            print(f"The table '{table}' does not exist.")
+            raise Exception('create table in postgresql first with desired names. Make sure json names match them')
     
-        # # Generate the column names dynamically
-        # columns = ', '.join(df.columns)
+        # Generate the column names dynamically
+        columns = ', '.join(df.columns)
     
-        # # Generate the placeholders for the VALUES clause based on the number of columns
-        # placeholders = ', '.join(['%s'] * len(df.columns))
+        # Generate the placeholders for the VALUES clause based on the number of columns
+        placeholders = ', '.join(['%s'] * len(df.columns))
 
-        # # Create the INSERT query (will insert even if duplicate)
-        # query = f'''INSERT INTO analytical_db.{table}({columns}) VALUES ({placeholders})''' # ON CONFLICT (id) DO UPDATE SET {update_columns}'''
+        # Create the INSERT query (will insert even if duplicate)
+        query = f'''INSERT INTO tissue_production.{table}({columns}) VALUES ({placeholders})''' # ON CONFLICT (id) DO UPDATE SET {update_columns}'''
 
-        # # insert multiple row into dataframe
-        # # creates a list of tuples (data_values) where each tuple represents a row in your DataFrame. Then, the executemany method is used to insert all the rows with a single query. This can significantly improve the performance compared to inserting rows one by one.
-        # data_values = [tuple(row) for _, row in df.iterrows()]
-        # cur.executemany(query, data_values)
+        # insert multiple row into dataframe
+        # creates a list of tuples (data_values) where each tuple represents a row in your DataFrame. Then, the executemany method is used to insert all the rows with a single query. This can significantly improve the performance compared to inserting rows one by one.
+        data_values = [tuple(row) for _, row in df.iterrows()]
+        cur.executemany(query, data_values)
             
-        # connection.commit()
-        # print(f'data from {table} upload successfully')
+        connection.commit()
+        print(f'data from {table} upload successfully')
 
         # # rename file and move to archive
         # current_time = datetime.now().strftime("%Y%m%d%H%M%S") # Get the current timestamp
