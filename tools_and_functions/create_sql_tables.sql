@@ -223,6 +223,7 @@ create table tissue_production.run_detail(
     vial_id varchar,
     culture_duration_days int,
     media_recipe varchar,
+    media_key varchar,
     Incubator varchar,
     start_date date,
     end_date date,
@@ -345,6 +346,7 @@ create table tissue_production.fresh_media_sampling(
     sample_date timestamp,
     operator varchar,
     comment text,
+    media_key varchar
 )
 
 drop table if exists tissue_production.biopsy_sampling;
@@ -480,7 +482,6 @@ create table instrument.flex2(
     operator varchar
 )
 
-
 --INSERT into the same row will change the specified value 
 INSERT INTO analytical_db.analytical_tracker (id, start_date) VALUES (1, '11/11/2023');
 
@@ -517,3 +518,64 @@ ALTER COLUMN feed_date TYPE timestamp without time zone USING feed_date::timesta
 
 --join functions:
 --https://www.freecodecamp.org/news/sql-join-types-inner-join-vs-outer-join-example/#:~:text=The%20biggest%20difference%20between%20an,table%20in%20the%20resulting%20table.
+--LEFT join (can replace LEFT join with INNER/OUTER/RIGHT etc)
+SELECT * FROM analytical_db.hydroxyproline_raw as hp
+
+LEFT JOIN biomaterial_scaffold.biomaterial using(biomaterial_id)
+LEFT JOIN tracker.analytical_tracker using(experiment_id)
+
+ORDER BY hp.id;
+
+
+--flex2 sample data
+SELECT 
+	cc_tracker.experiment_id,
+	cc_tracker.start_date,
+	cc_tracker.status,
+	rd.run_id,
+	rd.vessel_type,
+	rd.scaffold_id,
+	rd.vial_id,
+	rd.culture_duration_days,
+	rd.media_recipe,
+	rd.incubator,
+	rd.start_date,
+	rd.end_date,
+	rd.hide_id,
+	sp.sampling_ett_day,
+	sp.sample_id,
+	ms.sample_date,
+	fic.flex2_id,
+	f2.*
+	
+FROM tracker.cell_culture_tracker as cc_tracker
+
+LEFT JOIN tissue_production.run_detail as rd using(experiment_id) 
+--INNER JOIN tissue_production.run_parameter as rp using(run_id)
+--LEFT JOIN tissue_production.seed_operation as so using(run_id)
+LEFT JOIN tissue_production.sample_plan as sp using(run_id)
+LEFT JOIN tissue_production.media_sampling as ms using(sample_id)
+LEFT JOIN tissue_production.flex2_id_conversion as fic using(sample_id)
+LEFT JOIN instrument.flex2 as f2 ON fic.flex2_id = f2.sample_id
+
+--Where rd.run_id = 'CC1-1';
+
+
+
+-- flex2 fresh sample data
+SELECT 
+	cc_tracker.experiment_id,
+	cc_tracker.start_date,
+	cc_tracker.status,
+	rd.media_recipe,
+	fms.sample_date,
+	fms.sample_id,
+	fms.media_key,
+	fic.flex2_id,
+	f2.*
+	
+FROM tracker.cell_culture_tracker as cc_tracker
+LEFT JOIN tissue_production.run_detail as rd using (experiment_id)
+LEFT JOIN tissue_production.fresh_media_sampling as fms using(media_key)
+LEFT JOIN tissue_production.flex2_id_conversion as fic using(sample_id)
+LEFT JOIN instrument.flex2 as f2 ON fic.flex2_id = f2.sample_id
