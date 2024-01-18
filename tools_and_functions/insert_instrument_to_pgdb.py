@@ -77,6 +77,7 @@ def insert_cellcount_csv_to_pg(combined_df, table_name):
 
 def insert_flex_csv_to_pg(combined_df, table_name):
     df = combined_df
+    df_length = len(df)
 
     try:
         connection = psycopg2.connect(
@@ -108,27 +109,37 @@ def insert_flex_csv_to_pg(combined_df, table_name):
             print(f"The table '{table_name}' does not exist.")
             raise Exception('create table in postgresql first with desired names. Make sure json names match them')
 
+        # query to get the length of the table
+        table_length_query = f"SELECT COUNT(*) FROM instrument.{table_name}"
+        cur.execute(table_length_query)
+        # Fetch the table length result
+        row_count = cur.fetchone()[0]
+        
+        # get the differential dataframe
+        if row_count < df_length:
+            print(row_count)
+            df = df.iloc[row_count:df_length,:]
     
-        # column map
-        postgresql_columns = []
+            # column map
+            postgresql_columns = []
 
-        for col in df.columns:
-            postgresql_column_name = map.get(col, col)
-            postgresql_columns.append(postgresql_column_name)
+            for col in df.columns:
+                postgresql_column_name = map.get(col, col)
+                postgresql_columns.append(postgresql_column_name)
 
-        # Generate the column names dynamically for postgresql query format
-        columns = ', '.join(postgresql_columns)
+            # Generate the column names dynamically for postgresql query format
+            columns = ', '.join(postgresql_columns)
 
-        # Generate the placeholders for the VALUES clause based on the number of columns
-        placeholders = ', '.join(['%s'] * len(df.columns))
-        # Create the INSERT query (will insert even if duplicate, but conflict will dictates what it will do
-        query = f'''INSERT INTO instrument.{table_name}({columns}) VALUES ({placeholders}) ''' #ON CONFLICT (id) DO NOTHING'''
+            # Generate the placeholders for the VALUES clause based on the number of columns
+            placeholders = ', '.join(['%s'] * len(df.columns))
+            # Create the INSERT query (will insert even if duplicate, but conflict will dictates what it will do
+            query = f'''INSERT INTO instrument.{table_name}({columns}) VALUES ({placeholders}) ''' #ON CONFLICT (id) DO NOTHING'''
 
-        data_values = [tuple(row) for _, row in df.iterrows()]
-        cur.executemany(query, data_values)
-    
-        connection.commit()
-        print('data from {} upload success'.format(table_name))            
+            data_values = [tuple(row) for _, row in df.iterrows()]
+            cur.executemany(query, data_values)
+        
+            connection.commit()
+            print('data from {} upload success'.format(table_name))            
 
     except (Exception, Error) as error:
         print("Error while connecting to PostgreSQL", error)

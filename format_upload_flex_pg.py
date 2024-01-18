@@ -29,6 +29,10 @@ def flex2_processing(file, archive_directory):
     df = df.replace(r'^\s*$', np.nan, regex=True)
     df = df.where(pd.notna(df),None)
 
+    # replace cells with "-" with None
+    df = df.replace("-",np.nan)
+    df = df.where(pd.notna(df),None)
+
     insert_flex_csv_to_pg(df,'flex2')
 
 if __name__ == "__main__":
