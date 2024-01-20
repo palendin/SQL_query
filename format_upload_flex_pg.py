@@ -21,10 +21,10 @@ def resource_path(relative_path):
     return path
 
 # temporary solution: read gsheet -> upload to postgresql
-def flex2_processing(file, archive_directory):
+def flex2_processing(start_rows, file, archive_directory):
     
     df = read_gsheet(file_id='1CFYh78GX4T_xjn-nOZT0ysmWQdJCYz7yh3cy97OOe1g', sheet_name='flex2')
-    
+
     # convert empty cells to None
     df = df.replace(r'^\s*$', np.nan, regex=True)
     df = df.where(pd.notna(df),None)
@@ -33,6 +33,8 @@ def flex2_processing(file, archive_directory):
     df = df.replace("-",np.nan)
     df = df.where(pd.notna(df),None)
 
+    # append the data starting from a specific row
+    df = df.loc[start_rows:]
     insert_flex_csv_to_pg(df,'flex2')
 
 if __name__ == "__main__":

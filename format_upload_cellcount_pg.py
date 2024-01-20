@@ -48,18 +48,20 @@ def cell_count_processing(root_directory, archive_directory):
 
     # drops the column and reset with another index, renamed to 'id'
     # combined_df = pd.concat(df_list)[df.columns].reset_index(drop=True).rename_axis('id')
-    combined_df = pd.concat(df_list)[df.columns].reset_index().iloc[:,2:] # skip the index and UTC time column
-    
-    #append to existing csv file, except the header (for troubleshooting purposes)
-    #combined_df.to_csv("/Users/wayne/Documents/Programming/vscode/API/SQL_query/nucleocounter_raw_csv/compiled_cell_count/cell_count.csv", mode='a', header=False, index=False)
-    
-    # export by append to google spreadsheet
-    exportDF(combined_df)
+    if len(df_list) > 0:
+        combined_df = pd.concat(df_list)[df.columns].reset_index().iloc[:,2:] # skip the index and UTC time column
+        
+        #append to existing csv file, except the header (for troubleshooting purposes)
+        #combined_df.to_csv("/Users/wayne/Documents/Programming/vscode/API/SQL_query/nucleocounter_raw_csv/compiled_cell_count/cell_count.csv", mode='a', header=False, index=False)
+        
+        # export by append to google spreadsheet
+        exportDF(combined_df)
 
-    # note that postgresql has serial id, which will auto_index. do not need to worry about having the id column.
-    cell_count = "cell_count"
-    insert_cellcount_csv_to_pg(combined_df,cell_count)
-
+        # note that postgresql has serial id, which will auto_index. do not need to worry about having the id column.
+        cell_count = "cell_count"
+        insert_cellcount_csv_to_pg(combined_df,cell_count)
+    else:
+        print('no new files to upload')
 
 # using gspread to append to the existing spreadsheet in google doc
 def exportDF(df):
@@ -83,8 +85,9 @@ def exportDF(df):
 
 if __name__ == "__main__":
     # choose path of the cell count folder and archive folder
-    process_folder_path = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data [Trained User Only]/Instrument/nucleocounter raw files'
-    archive_folder_path = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data [Trained User Only]/Instrument/nucleocounter raw files/Archive (Data Uploaded)'
+    process_folder_path = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data (Trained User Only)/Instrument/nucleocounter raw files'
+    archive_folder_path = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data (Trained User Only)/Instrument/nucleocounter raw files/Archive (Data Uploaded)'
     #process_folder_path = resource_path('nucleocounter_raw_csv')
     #archive_folder_path = resource_path('nucleocounter_raw_csv/archive')
     cell_count_processing(process_folder_path, archive_folder_path)
+
