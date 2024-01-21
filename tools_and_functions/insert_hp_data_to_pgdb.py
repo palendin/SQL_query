@@ -24,7 +24,7 @@ def resource_path(relative_path):
 
 # loop through each subfolder and upload specified csv file to postgresql database table
 @retry(stop=stop_after_attempt(10), wait=wait_fixed(5))
-def insert_hp_csv_data_to_pgdb(data, table):
+def insert_hp_csv_data_to_pgdb(df, table):
     
     # if table == "biopsy_result":
     #     column_map = "/Users/wayne/Documents/Programming/vscode/API/SQL_query/column_map/biopsy_map.json"
@@ -35,7 +35,7 @@ def insert_hp_csv_data_to_pgdb(data, table):
     #     map = json.load(file)
 
 
-
+    
     # connect to db
     try:
         connection = psycopg2.connect(
@@ -47,18 +47,18 @@ def insert_hp_csv_data_to_pgdb(data, table):
         
         cur = connection.cursor()
 
-        try:
-            # Replace NaN values with None
-            df = data.where(pd.notna(data), None)
+        # try:
+        #     # Replace NaN values with None
+        #     df = data.where(pd.notna(data), None)
             
-            # replace empty date with None
-            try:
-                df['reaction_date'] = df['reaction_date'].replace('01-00-1900',0).replace([0],[None])
-            except:
-                pass
+        #     # replace empty date with None
+        #     try:
+        #         df['reaction_date'] = df['reaction_date'].replace('01-00-1900',0).replace([0],[None])
+        #     except:
+        #         pass
 
-        except:
-            print('unable to read the dataframe')
+        # except:
+        #     print('unable to read the dataframe')
 
         # Check if the table exists
         query = f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s)"
@@ -96,17 +96,6 @@ def insert_hp_csv_data_to_pgdb(data, table):
             
         connection.commit()
         print(f'data from {table} upload successfully')
-
-        # # rename file and move to archive
-        # current_time = datetime.now().strftime("%Y%m%d%H%M%S") # Get the current timestamp
-
-        # # Create the new file name with the current timestamp
-        # new_file_name = f'{current_time}{file_name}'
-        # os.rename(root_directory + '/' + file_name, root_directory + '/' + new_file_name)
-
-        # # move file to archive folder
-        # shutil.move(root_directory + '/' + new_file_name, archive_folder)
-        
                  
     except (Exception, Error) as error:
         print("Error while connecting to PostgreSQL", error)
