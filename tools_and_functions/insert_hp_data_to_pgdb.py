@@ -9,6 +9,7 @@ import shutil
 from datetime import datetime
 from tenacity import retry, stop_after_attempt, wait_fixed
 warnings.filterwarnings("ignore")
+import traceback
 
 # for executable purposes, defining a dynamic base path is needed for executing at different locations
 # for relative path, this is a folder created in the same directory as the executable for storing HP_assay experiments
@@ -87,8 +88,8 @@ def insert_hp_csv_data_to_pgdb(df, table):
         connection.commit()
         print(f'data from {table} upload successfully')
                  
-    except (Exception, Error) as error:
-        print("Error while connecting to PostgreSQL", error)
+    except (Exception) as error:
+        print(traceback.format_exc())
     finally:
         if (connection):
             cur.close()
