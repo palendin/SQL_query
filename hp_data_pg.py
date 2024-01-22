@@ -82,7 +82,7 @@ def process_hp_data_and_insert_to_pg(root_directory, archive_path):
                         pass
                     
                     # insert to postgres
-                    #insert_hp_csv_data_to_pgdb(data,table_list[i])
+                    insert_hp_csv_data_to_pgdb(data,table_list[i])
 
                 else:
                     continue    
