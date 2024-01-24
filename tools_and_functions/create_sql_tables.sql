@@ -512,6 +512,17 @@ UPDATE analytical_db.biopsy_result
 SET experiment_id = 'HP45-20231201'
 WHERE experiment_id LIKE '%HP45%'
 
+--update multiple values at once
+update users as u set -- postgres FTW
+  email = u2.email,
+  first_name = u2.first_name,
+  last_name = u2.last_name
+from (values
+  (1, 'hollis@weimann.biz', 'Hollis', 'Connell'),
+  (2, 'robert@duncan.info', 'Robert', 'Duncan')
+) as u2(id, email, first_name, last_name)
+where u2.id = u.id;
+
 --delete specific values
 DELETE FROM analytical_db.hydroxyproline_raw
 WHERE column_name = 'some_value';
@@ -531,12 +542,18 @@ LEFT JOIN tracker.analytical_tracker using(experiment_id)
 ORDER BY hp.id;
 
 
+
+
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+
 --flex2 sample data
 SELECT 
 	cc_tracker.experiment_id,
 	cc_tracker.start_date,
 	cc_tracker.status,
 	rd.run_id,
+    rd.run_description
 	rd.vessel_type,
 	rd.scaffold_id,
 	rd.vial_id,
