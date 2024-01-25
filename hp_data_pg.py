@@ -74,7 +74,8 @@ def process_hp_data_and_insert_to_pg(root_directory):
     # upload_list = pd.DataFrame() # gspread API has user request limit of 60/min, but can upload row by row still with sleep function
 
     for experiment in tracker_df.values:
-        if experiment[0] not in saved_exp_list and experiment[1] == 'complete':
+        # compare each experiment in the tracker to saved list
+        if experiment[0] not in saved_exp_list and (experiment[1] == 'complete' or experiment[1] == 'deprecated'):
             
             # append experiment info to dataframe
             #upload_list = upload_list.append(pd.Series(list(experiment)), ignore_index = True)
@@ -114,11 +115,13 @@ def process_hp_data_and_insert_to_pg(root_directory):
 
             # add experiment to spreadsheet to keep track
             worksheet.append_row(list(experiment))
+            print(f'appended {experiment} to google sheet')
             sleep(2)
 
         else:
             continue
-          
+    
+    print('hydroxyproline upload complete')
 
 # # insert csv file by file into postgres
 # def process_hp_data_and_insert_to_pg(root_directory, archive_path):

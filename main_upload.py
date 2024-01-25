@@ -12,7 +12,7 @@ def resource_path(relative_path):
         base_path = sys._MEIPASS
     except:
         base_path = os.path.abspath(".")
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
     path = os.path.join(base_path, relative_path)
 
     return path
@@ -58,14 +58,16 @@ path = resource_path('Tissue')
 archive = resource_path('Tissue/archive')
 tissue_production_processing(root_directory=path, archive_directory=archive)
 
-# hydroxyproline data (raw + biopsy). postgresql table is serial id. MAKE SURE ONLY NEW FILES ARE IN THE FOLDER FIRST
-path = resource_path('HP_assay') #where the experiment folders are
-archive_path = resource_path('HP_assay/archive')
-process_hp_data_and_insert_to_pg(path,archive_path)
+# uploade hp data from g-drive. postgresql table is serial id
+hp_folder_path  = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data (Trained User Only)/Analytical/hydroxyproline'
+process_hp_data_and_insert_to_pg(hp_folder_path)
 
-# upload flex2 data from g-drive (automated completely)
+
+# upload flex2 data from g-drive (automated completely, run as needed)
 run_flex2_upload = input('do you need to upload flex2 data from google sheet? (y/n)')
 if run_flex2_upload == 'y':
-    row = int(input('enter index to start appending from'))
+    row = int(input('ent er index to start appending from'))
     start_row = int(row)
     flex2_processing(start_row,file=None, archive_directory=None) # reads the g-sheet. Note: use if needed to catchup with data in postgres
+else:
+    print('skipping flex upload')
