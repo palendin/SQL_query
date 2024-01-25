@@ -74,53 +74,54 @@ def process_hp_data_and_insert_to_pg(root_directory):
     # upload_list = pd.DataFrame() # gspread API has user request limit of 60/min, but can upload row by row still with sleep function
 
     for experiment in tracker_df.values:
-        # compare each experiment in the tracker to saved list
-        if experiment[0] not in saved_exp_list and (experiment[1] == 'complete' or experiment[1] == 'deprecated'):
-            
-            # append experiment info to dataframe
-            #upload_list = upload_list.append(pd.Series(list(experiment)), ignore_index = True)
-
-            # get an experiment folder path that hasnt been uploaded. Root directory is where experiment folders lie
-            experiment_folder_path = os.path.join(root_directory,experiment[0])
-            
-            for i,file in enumerate(file_names):
-                file_path = os.path.join(experiment_folder_path, file)
+        if "HP" in experiment[0]:
+            # compare each experiment in the tracker to saved list
+            if experiment[0] not in saved_exp_list and (experiment[1] == 'complete' or experiment[1] == 'deprecated'):
                 
-                # check if file exist, if it does, append the content to list
-                if os.path.exists(file_path):
-                    data = pd.read_csv(file_path)
-                 
-                    df = pd.DataFrame(data)
-        
-                    # rename some columns for consistency
-                    df = df.rename(columns=column_rename[i])
+                # append experiment info to dataframe
+                #upload_list = upload_list.append(pd.Series(list(experiment)), ignore_index = True)
 
-                    # reorder columns
-                    df = df[column_order[i]]
-
-                    # replace NaN with None
-                    data = df.where(pd.notna(df), None)
-
-                    # replace empty date with None
-                    try:
-                        data['reaction_date'] = data['reaction_date'].replace('01-00-1900',0).replace([0],[None])
-                    except:
-                        pass
+                # get an experiment folder path that hasnt been uploaded. Root directory is where experiment folders lie
+                experiment_folder_path = os.path.join(root_directory,experiment[0])
+                
+                for i,file in enumerate(file_names):
+                    file_path = os.path.join(experiment_folder_path, file)
                     
-                    # insert to postgres
-                    insert_hp_csv_data_to_pgdb(data,table_list[i])
+                    # check if file exist, if it does, append the content to list
+                    if os.path.exists(file_path):
+                        data = pd.read_csv(file_path)
+                    
+                        df = pd.DataFrame(data)
+            
+                        # rename some columns for consistency
+                        df = df.rename(columns=column_rename[i])
 
-                else:
-                    print('exp is complete but file is missing, check folder!') 
+                        # reorder columns
+                        df = df[column_order[i]]
 
-            # add experiment to spreadsheet to keep track
-            worksheet.append_row(list(experiment))
-            print(f'appended {experiment} to google sheet')
-            sleep(2)
+                        # replace NaN with None
+                        data = df.where(pd.notna(df), None)
+
+                        # replace empty date with None
+                        try:
+                            data['reaction_date'] = data['reaction_date'].replace('01-00-1900',0).replace([0],[None])
+                        except:
+                            pass
+                        
+                        # insert to postgres
+                        insert_hp_csv_data_to_pgdb(data,table_list[i])
+
+                    else:
+                        print('exp is complete but file is missing, check folder!') 
+
+                # add experiment to spreadsheet to keep track
+                worksheet.append_row(list(experiment))
+                print(f'appended {experiment} to google sheet')
+                sleep(2)
 
         else:
             continue
-    
+        
     print('hydroxyproline upload complete')
 
 # # insert csv file by file into postgres
