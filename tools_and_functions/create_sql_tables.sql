@@ -525,7 +525,7 @@ where u2.id = u.id;
 
 --delete specific values
 DELETE FROM analytical_db.hydroxyproline_raw
-WHERE column_name = 'some_value';
+WHERE some_column_name = 'some_value';
 
 --alter data type to timestamp
 ALTER TABLE tissue_production.feed_operation 
