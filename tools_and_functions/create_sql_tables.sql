@@ -6,7 +6,7 @@ create table tracker.analytical_tracker(
 	experiment_id varchar,
     department varchar,
     assay_type varchar,
-    hypothesis text,
+    description text,
     start_date date,
     owner varchar,
     experiment_link varchar,
@@ -550,10 +550,9 @@ ORDER BY hp.id;
 --flex2 sample data
 SELECT 
 	cc_tracker.experiment_id,
-	cc_tracker.start_date,
 	cc_tracker.status,
 	rd.run_id,
-    rd.run_description
+    rd.run_description,
 	rd.vessel_type,
 	rd.scaffold_id,
 	rd.vial_id,
@@ -567,20 +566,21 @@ SELECT
 	sp.sample_id,
 	ms.sample_date,
 	fic.flex2_id,
-	f2.*
+	f2.*,
+	fo.feed_date,
+	fo.media_id
 	
 FROM tracker.cell_culture_tracker as cc_tracker
 
 LEFT JOIN tissue_production.run_detail as rd using(experiment_id) 
---INNER JOIN tissue_production.run_parameter as rp using(run_id)
---LEFT JOIN tissue_production.seed_operation as so using(run_id)
 LEFT JOIN tissue_production.sample_plan as sp using(run_id)
 LEFT JOIN tissue_production.media_sampling as ms using(sample_id)
 LEFT JOIN tissue_production.flex2_id_conversion as fic using(sample_id)
 LEFT JOIN instrument.flex2 as f2 ON fic.flex2_id = f2.sample_id
+LEFT JOIN tissue_production.feed_operation as fo ON (sp.feed_id = fo.feed_id)
 
---Where rd.run_id = 'CC1-1';
 
+Where cc_tracker.experiment_id = 'CC1'
 
 
 -- flex2 fresh sample data
