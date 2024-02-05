@@ -583,7 +583,7 @@ LEFT JOIN tissue_production.feed_operation as fo ON (sp.feed_id = fo.feed_id)
 Where cc_tracker.experiment_id = 'CC1'
 
 
--- flex2 fresh sample data
+-- flex2 fresh sample data with tissue experiments
 SELECT 
 	cc_tracker.experiment_id,
 	cc_tracker.start_date,
@@ -600,3 +600,115 @@ LEFT JOIN tissue_production.run_detail as rd using (experiment_id)
 LEFT JOIN tissue_production.fresh_media_sampling as fms using(media_key)
 LEFT JOIN tissue_production.flex2_id_conversion as fic using(sample_id)
 LEFT JOIN instrument.flex2 as f2 ON fic.flex2_id = f2.sample_id
+
+
+--tissue experiments with flex and hydroxyrpoline data
+SELECT 
+	cc_tracker.experiment_id,
+	cc_tracker.status,
+	rd.run_id,
+    rd.run_description,
+	rd.vessel_type,
+	rd.scaffold_id,
+	rd.vial_id,
+	rd.culture_duration_days,
+	rd.media_recipe,
+	rd.incubator,
+	rd.start_date,
+	rd.end_date,
+	rd.hide_id,
+	sp.sampling_ett_day,
+	sp.sample_id,
+	ms.sample_date,
+    ms.media_exchange_volume_ml,
+	fic.flex2_id,
+	f2.ph,
+	f2.po2,
+	f2.pco2,
+	f2.gln,
+	f2.glu,
+	f2.gluc,
+	f2.lac,
+	f2.nh4,
+	f2.na,
+	f2.k,
+	f2.ca,
+	f2.osm,
+	f2.vessel_id,
+	f2.batch_id,
+	f2.vessel_temperature_c,
+	f2.vessel_pressure_psi,
+	f2.sparging_o2,
+	f2.ph_at_temp,
+	f2.po2_at_temp,
+	f2.pco2_at_temp,
+	f2.o2_saturation,
+	f2.co2_saturation,
+	f2.hco3,
+	fo.feed_date,
+	fo.media_exchange_volume_ml,
+	fo.media_id,
+	hp_raw.sample_type,
+	hp_raw.sample_state,
+	hp_raw.normalized_abs,	
+	hp_raw.mg_per_ml
+	
+FROM tracker.cell_culture_tracker as cc_tracker
+
+LEFT JOIN tissue_production.run_detail as rd using(experiment_id) 
+LEFT JOIN tissue_production.sample_plan as sp using(run_id)
+LEFT JOIN tissue_production.media_sampling as ms using(sample_id)
+LEFT JOIN tissue_production.flex2_id_conversion as fic using(sample_id)
+LEFT JOIN instrument.flex2 as f2 ON fic.flex2_id = f2.sample_id
+LEFT JOIN tissue_production.feed_operation as fo ON (sp.feed_id = fo.feed_id)
+INNER JOIN analytical_db.hydroxyproline_raw as hp_raw ON (ms.sample_id = hp_raw.sample_id)
+LEFT JOIN tracker.analytical_tracker as atr ON (hp_raw.experiment_id = atr.experiment_id)
+
+where atr.status = 'complete'
+
+
+
+--tissue production data with biopsy results
+SELECT 
+	cc_tracker.experiment_id,
+	cc_tracker.status,
+	rd.run_id,
+    rd.run_description,
+	rd.vessel_type,
+	rd.scaffold_id,
+	rd.vial_id,
+	rd.culture_duration_days,
+	rd.media_recipe,
+	rd.incubator,
+	rd.start_date,
+	rd.end_date,
+	rd.hide_id,
+	sp.sampling_ett_day,
+	bs.biopsy_id,
+	bs.biopsy_date,
+	br.biomaterial_id,
+    br.mg_per_biopsy_mean,
+    br.mg_per_biopsy_std,
+    br.mg_per_ml_mean,
+    br.mg_per_ml_std,
+    br.mg_per_cm2_mean,
+    br.mg_per_cm2_std,
+    br.net_weight_mg,
+    br.tissue_areal_density_mg_per_cm2,
+	bm.material_type,
+	bm.needle_punch,
+	bm.manufacture_gsm,
+	bm.areal_density_mg_per_cm2
+	
+	
+FROM tracker.cell_culture_tracker as cc_tracker
+
+LEFT JOIN tissue_production.run_detail as rd using(experiment_id) 
+LEFT JOIN tissue_production.sample_plan as sp using(run_id)
+LEFT JOIN tissue_production.biopsy_sampling as bs using(biopsy_id)
+LEFT JOIN analytical_db.biopsy_result as br using(biopsy_id)
+LEFT JOIN tracker.analytical_tracker as atr ON (br.experiment_id = atr.experiment_id)
+LEFT JOIN biomaterial_scaffold.biomaterial as bm using(biomaterial_id)
+
+where atr.status = 'complete'
+

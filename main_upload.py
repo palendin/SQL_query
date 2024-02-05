@@ -63,7 +63,7 @@ hp_folder_path  = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabs
 process_hp_data_and_insert_to_pg(hp_folder_path)
 
 
-# upload flex2 data from g-drive (automated completely, run as needed)
+# upload flex2 data from g-drive (automated completely now, run as needed)
 run_flex2_upload = input('do you need to upload flex2 data from google sheet? (y/n)')
 if run_flex2_upload == 'y':
     row = int(input('ent er index to start appending from'))
