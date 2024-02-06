@@ -30,7 +30,7 @@ def insert_cellcount_csv_to_pg(combined_df, table_name):
         #     with open(column_map, 'r') as file:
         #         map = json.load(file)
 
-        df = df.fillna(0).replace([0],[None])
+        #df = df.fillna(0).replace([0],[None])
         df = df[df['Sample ID'].notna()] # get all rows that does not have null sample id
 
         # Check if the table exists
@@ -95,7 +95,7 @@ def insert_flex_csv_to_pg(combined_df, table_name):
         with open(column_map, 'r') as file:
             map = json.load(file)
 
-        df = df.fillna(0).replace([0],[None])
+        #df = df.fillna(0).replace([0],[None])
         df = df[df['Sample ID'].notna()] # get all rows that does not have null sample id
 
         # Check if the table exists

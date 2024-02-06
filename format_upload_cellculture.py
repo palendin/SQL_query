@@ -43,7 +43,8 @@ def tissue_production_processing(root_directory, archive_directory):
                 'seed_operation_column_order' : ['run_id','seed_volume_ml','concentration_cells_per_ml','seed_number','seed_date','flood_time_hrs',
                                                  'media_id','media_volume_ml','rocking_start_time','operator','comment'],
                 'process_values_column_order' : ['run_id','monitor_date','volume_ml','temperature_C','CO2','O2','pCO2','pO2','pH','rocking_hz',
-                                                 'rocking_angle','feed_rate_mlpm','outlet_rate_mlpm','vessel_pressure_psi','stirr_rpm','air_flow_mlpm'],
+                                                 'rocking_angle','feed_rate_mlpm','outlet_rate_mlpm','vessel_pressure_psi','stirr_rpm','air_flow_mlpm','tank_weight_g',
+                                                 'base_weight_g','acid_weight_g','feed_weight_g','feed_change_weight_g','waste_weight_g','waste_change_weight_g','offline_pH'],
                 'feed_operation_column_order' : ['feed_id','feed_date','media_id','media_exchange_volume_ml','time_out','time_in','operator','comment'],
                 'media_sampling_column_order' : ['sample_id','sample_date','operator','comment'],
                 'fresh_media_sampling_column_order' : ['experiment_id','sample_id','sampling_ETT_day','sample_date','operator','comment','media_key'],
@@ -57,7 +58,7 @@ def tissue_production_processing(root_directory, archive_directory):
             
             arranged_columns_list = list(column_order_list.values())
             
-            # # for uploading selected tables
+            # # for uploading individually selected tables
             # sheet_names = ['run_deviation']
             # arranged_columns_list = [column_order_list['run_deviation_column_order']]
             # print(arranged_columns_list)
@@ -77,8 +78,7 @@ def tissue_production_processing(root_directory, archive_directory):
                 data = data.dropna(axis=0,subset=[data.columns[0]])
              
                 # re-order columns (edit column order if needed)
-                data = data[arranged_columns_list[i]].iloc[3:5,:]
-      
+                data = data[arranged_columns_list[i]]
                 
                 # upload
                 insert_tissue_data_to_pgdb(data=data,table=sheet)

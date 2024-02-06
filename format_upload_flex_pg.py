@@ -35,7 +35,9 @@ def flex2_processing(start_rows, file, archive_directory):
 
     # append the data starting from a specific row
     df = df.loc[start_rows:]
+    df = df.rename(columns={'Vessel Temperature (¬∞C)':'temperature'})
+    print(df.columns)
     insert_flex_csv_to_pg(df,'flex2')
 
 if __name__ == "__main__":
-    flex2_processing(file=None, archive_directory=None)
+    flex2_processing(start_rows = 0, file=None, archive_directory=None)

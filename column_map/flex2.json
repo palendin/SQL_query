@@ -19,7 +19,7 @@
     "Vessel ID": "vessel_id",
     "Batch ID": "batch_id",
     "Cell Type": "cell_type",
-    "Vessel Temperature (°C)": "vessel_temperature_C",
+    "temperature": "vessel_temperature_C",
     "Vessel Pressure (psi)": "vessel_pressure_psi",
     "Sparging O2%": "sparging_O2",
     "pH @ Temp": "pH_at_temp",

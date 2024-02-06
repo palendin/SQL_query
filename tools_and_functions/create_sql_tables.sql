@@ -499,7 +499,6 @@ from '/Library/PostgreSQL/15/pizza_sales/HP_assay_master_data.csv'
 delimiter ',' csv header;
 
 
-
 -- create a serial id without having to drop the column or the whole table and retain the column orders
 CREATE SEQUENCE t_seq INCREMENT BY 1;
 SELECT setval('t_seq', (SELECT max(id) FROM analytical_db.hydroxyproline_raw));
@@ -507,7 +506,7 @@ SELECT setval('t_seq', (SELECT max(id) FROM analytical_db.hydroxyproline_raw));
 ALTER TABLE analytical_db.hydroxyproline_raw ALTER COLUMN id SET DEFAULT nextval('t_seq');
 
 
---replacing value in a specific column with SET by filtering the desired name 
+--replace value in a specific column with SET by filtering the desired name 
 UPDATE analytical_db.biopsy_result
 SET experiment_id = 'HP45-20231201'
 WHERE experiment_id LIKE '%HP45%'
