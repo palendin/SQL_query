@@ -45,7 +45,7 @@ def process_hp_data_and_insert_to_pg(root_directory):
     raw_data_column_order = ['experiment_id','sample_id','sample_type','sample_state','sample_lot','biopsy_id','culture_date','biopsy_replicate','biopsy_diameter_mm',
                     'digestion_volume_ul','dilution_factor','assay_volume_ul','loaded_weight1_mg','loaded_weight2_mg','tube_weight1_mg','tube_weight2_mg','operator',
                     'std_conc_ug_per_well','media_type','biomaterial_id','reaction_date','abs','sheet_name','location','data check','normalized_abs','r_squared',
-                    'net weight mg','ug/well','mg/ml','mg/biopsy','mg/cm2','avg mg/biopsy', 'mg/biopsy std', 'avg mg/cm2','mg/cm2 std', 'avg mg/ml', 'mg/ml std','unique_id']
+                    'net weight mg','ug/well','mg/ml','mg/biopsy','mg/cm2'] #,'avg mg/biopsy', 'mg/biopsy std', 'avg mg/cm2','mg/cm2 std', 'avg mg/ml', 'mg/ml std','unique_id']
     
     biopsy_column_order = ['experiment_id',	'biopsy_id','biomaterial_id','mg/biopsy mean','mg/biopsy std','mg/ml mean','mg/ml std',	
                            'mg/cm2 mean','mg/cm2 std','net weight mg','tissue areal density mg/cm2']
@@ -57,7 +57,7 @@ def process_hp_data_and_insert_to_pg(root_directory):
     # read saved experiment upload data
     gc = gs.service_account(filename='/Users/wayne/Documents/Programming/vscode/API/Google_API/service_account.json')
     sh = gc.open_by_key('1TtqClIkvNCqJMoRZ6wkq-PPwwl0trO3SqGbIdAD9d6k')
-    worksheet = sh.worksheet('analytical_tracker')
+    worksheet = sh.worksheet('hp_exp_tracker')
 
     # get experiment id and status from experiment tracker
     tracker_id, tracker_sheet = ['1MOuCpubEbwf7QE_tU5IfL_pqFwtDukOqH5o_9Z0WnHM','Tracker']
@@ -66,7 +66,7 @@ def process_hp_data_and_insert_to_pg(root_directory):
     tracker_df = tracker_df[['experiment_id','status']]
     
     # get processed experiment id from gsheet that contains uploaded experiment names
-    saved_exp, saved_tracker_sheet = ['1TtqClIkvNCqJMoRZ6wkq-PPwwl0trO3SqGbIdAD9d6k','analytical_tracker']
+    saved_exp, saved_tracker_sheet = ['1TtqClIkvNCqJMoRZ6wkq-PPwwl0trO3SqGbIdAD9d6k','hp_exp_tracker']
     saved_exp_df = read_gsheet(saved_exp, saved_tracker_sheet).replace('',np.nan, regex=True)
     saved_exp_df = saved_exp_df.where(pd.notna(saved_exp_df), None) # replace NaN value with None
     saved_exp_list = saved_exp_df.iloc[:,0].to_list()
