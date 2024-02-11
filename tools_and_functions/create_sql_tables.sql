@@ -541,6 +541,16 @@ LEFT JOIN tracker.analytical_tracker using(experiment_id)
 ORDER BY hp.id;
 
 
+--select/count distinct values
+select distinct ON (hr.experiment_id) hr.experiment_id, hr.id
+COUNT(distinct hr.experiment_id) 
+from analytical_db.hydroxyproline_raw as hr
+LEFT join analytical_db.biopsy_result as br using (biopsy_id)
+
+
+
+
+
 
 
 --------------------------------------------------------------------------------------------
