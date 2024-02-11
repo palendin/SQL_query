@@ -45,7 +45,7 @@ def process_hp_data_and_insert_to_pg(root_directory):
     raw_data_column_order = ['experiment_id','sample_id','sample_type','sample_state','sample_lot','biopsy_id','culture_date','biopsy_replicate','biopsy_diameter_mm',
                     'digestion_volume_ul','dilution_factor','assay_volume_ul','loaded_weight1_mg','loaded_weight2_mg','tube_weight1_mg','tube_weight2_mg','operator',
                     'std_conc_ug_per_well','media_type','biomaterial_id','reaction_date','abs','sheet_name','location','data check','normalized_abs','r_squared',
-                    'net weight mg','ug/well','mg/ml','mg/biopsy','mg/cm2']
+                    'net weight mg','ug/well','mg/ml','mg/biopsy','mg/cm2','avg mg/biopsy', 'mg/biopsy std', 'avg mg/cm2','mg/cm2 std', 'avg mg/ml', 'mg/ml std','unique_id']
     
     biopsy_column_order = ['experiment_id',	'biopsy_id','biomaterial_id','mg/biopsy mean','mg/biopsy std','mg/ml mean','mg/ml std',	
                            'mg/cm2 mean','mg/cm2 std','net weight mg','tissue areal density mg/cm2']
