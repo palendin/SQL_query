@@ -37,9 +37,9 @@ def process_hp_data_and_insert_to_pg(root_directory):
     # table names in postgres
     table_list = ['hydroxyproline_raw','biopsy_result']
 
-    # define some to rename columns
+    # rename some of the columns
     raw_data_columns_rename = {'experiment_ID':'experiment_id','sample_ID':'sample_id','hide_ID':'biopsy_id','biomaterial_ID':'biomaterial_id','digest volume ul':'digestion_volume_ul','digest sample volume ul':'assay_volume_ul'}
-    biopsy_columns_rename = {'experiment_ID':'experiment_id','hide_ID':'biopsy_id','biomaterial_ID':'biomaterial_id'}
+    biopsy_columns_rename = {'experiment_ID':'experiment_id','hide_ID':'biopsy_id','biomaterial_ID':'biomaterial_id','sample_ID':'sample_id'}
 
     #define columns orders
     raw_data_column_order = ['experiment_id','sample_id','sample_type','sample_state','sample_lot','biopsy_id','culture_date','biopsy_replicate','biopsy_diameter_mm',
@@ -48,7 +48,7 @@ def process_hp_data_and_insert_to_pg(root_directory):
                     'net weight mg','ug/well','mg/ml','mg/biopsy','mg/cm2','avg mg/biopsy', 'mg/biopsy std', 'avg mg/cm2','mg/cm2 std', 'avg mg/ml', 'mg/ml std','unique_id']
     
     biopsy_column_order = ['experiment_id',	'biopsy_id','biomaterial_id','mg/biopsy mean','mg/biopsy std','mg/ml mean','mg/ml std',	
-                           'mg/cm2 mean','mg/cm2 std','net weight mg','tissue areal density mg/cm2']
+                           'mg/cm2 mean','mg/cm2 std','net weight mg','tissue areal density mg/cm2','sample_id']
     
     # put rename and order in a list for forloop
     column_rename = [raw_data_columns_rename, biopsy_columns_rename]
