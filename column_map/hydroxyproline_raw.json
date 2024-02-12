@@ -37,7 +37,7 @@
     "mg/cm2 std" : "mg_per_cm2_std", 
     "avg mg/ml" : "avg_mg_per_ml",
     "mg/ml std" : "mg_per_ml_std",
-    "unique_id" : "unique_id"
+    "HP_sid" : "HP_sid"
 
     
 }

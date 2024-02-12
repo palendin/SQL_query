@@ -9,5 +9,7 @@
     "mg/cm2 mean" : "mg_per_cm2_mean",
     "mg/cm2 std" : "mg_per_cm2_std",
     "net weight mg" : "net_weight_mg",
-    "tissue areal density mg/cm2" : "tissue_areal_density_mg_per_cm2"
+    "tissue areal density mg/cm2" : "tissue_areal_density_mg_per_cm2",
+    "sample_id" : "sample_id",
+    "HP_sid" : "HP_sid"
 }
