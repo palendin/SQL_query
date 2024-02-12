@@ -37,7 +37,7 @@ def process_hp_data_and_insert_to_pg(root_directory):
     # table names in postgres
     table_list = ['hydroxyproline_raw','biopsy_result']
 
-    # define some to rename columns
+    # rename some of the columns
     raw_data_columns_rename = {'experiment_ID':'experiment_id','sample_ID':'sample_id','hide_ID':'biopsy_id','biomaterial_ID':'biomaterial_id','digest volume ul':'digestion_volume_ul','digest sample volume ul':'assay_volume_ul'}
     biopsy_columns_rename = {'experiment_ID':'experiment_id','hide_ID':'biopsy_id','biomaterial_ID':'biomaterial_id'} #,'sample_ID':'sample_id'}
 
