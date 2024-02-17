@@ -39,7 +39,7 @@ def tissue_production_processing(root_directory, archive_directory):
                                                 'rocking_hz_SP','rocking_angle_SP','feed_rate_mlpm_SP','outlet_rate_mlpm_SP',
                                                 'vessel_pressure_psi_SP','actuator_wait_mins','feed_delay','rest_time_hr',
                                                 'stirr_init_rpm','stirr_final_rpm','init_air_flow_mlpm','final_air_flow_mlpm','recirculation_rate_mlpm','process_mode'],
-                'sample_plan_column_order' : ['run_id','sampling_ETT_day','media_sample','biopsy','feed','monitor','hide_id','feed_id','sample_id','biopsy_id'],
+                'sample_plan_column_order' : ['run_id','sampling_ETT_day','media_sample','biopsy','feed','monitor','hide_id','feed_id','sample_id','biopsy_id'], # 'sampling_ETT_hr'] # add this when uploading after CC4, including CC3
                 'seed_operation_column_order' : ['run_id','seed_volume_ml','concentration_cells_per_ml','seed_number','seed_date','flood_time_hrs',
                                                  'media_id','media_volume_ml','rocking_start_time','operator','comment'],
                 'process_values_column_order' : ['run_id','monitor_date','volume_ml','temperature_C','dO2','CO2','O2','pH','rocking_hz',
@@ -47,7 +47,7 @@ def tissue_production_processing(root_directory, archive_directory):
                                                  'base_weight_g','acid_weight_g','feed_weight_g','feed_change_weight_g','waste_weight_g','waste_change_weight_g','offline_pH'],
                 'feed_operation_column_order' : ['feed_id','feed_date','media_id','media_exchange_volume_ml','time_out','time_in','operator','comment'],
                 'media_sampling_column_order' : ['sample_id','sample_date','operator','comment'],
-                'fresh_media_sampling_column_order' : ['experiment_id','sample_id','sampling_ETT_day','sample_date','operator','comment','media_key'],
+                'fresh_media_sampling_column_order' : ['experiment_id','sample_id','sampling_ETT_day','sample_date','operator','comment','media_key'], # 'sampling_ETT_hr'] # add this when uploading after CC4, including CC3
                 'biopsy_sampling_column_order' : ['biopsy_id','biopsy_date','biopsy_purpose','biopsy_diameter_mm','num_biopsy_taken','storage_location','operator','comment'],
                 'hide_harvest_column_order' : ['run_id','harvest_date','wet_weight_g','thickness_1_mm','thickness_2_mm','thickness_3_mm','thickness_4_mm',
                                                'thickness_5_mm','thickness_6_mm','avg_thickness_mm','mechanical_strength','fiber_protrusion',
@@ -70,6 +70,7 @@ def tissue_production_processing(root_directory, archive_directory):
                 # read each sheet, remove empty rows
                 if i == 7: #fresh_media_sampling has additional rows that we dont need
                     data = df[sheet].iloc[:,0:7]
+                    #data = df[sheet].iloc[:,0:8] # use this when uploading after CC4, including CC3
                 else:
                     #continue
                     data = df[sheet]
@@ -98,6 +99,9 @@ def tissue_production_processing(root_directory, archive_directory):
 #         new_column = column_list.insert(position, column)
        
 #     return new_column
+
+
+
 
 if __name__ == "__main__":
     path = resource_path('Tissue')

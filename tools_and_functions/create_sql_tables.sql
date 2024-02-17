@@ -486,6 +486,9 @@ create table instrument.flex2(
     operator varchar
 )
 
+
+
+
 --INSERT into the same row will change the specified value 
 INSERT INTO analytical_db.analytical_tracker (id, start_date) VALUES (1, '11/11/2023');
 
@@ -548,8 +551,8 @@ from analytical_db.hydroxyproline_raw as hr
 LEFT join analytical_db.biopsy_result as br using (biopsy_id)
 
 
-
-
+--copy table to another table
+CREATE TABLE new_table AS TABLE existing_table;
 
 
 
@@ -674,7 +677,6 @@ INNER JOIN analytical_db.hydroxyproline_raw as hp_raw ON (ms.sample_id = hp_raw.
 LEFT JOIN tracker.analytical_tracker as atr ON (hp_raw.experiment_id = atr.experiment_id)
 
 where atr.status = 'complete'
-
 
 
 --tissue production data with biopsy results
