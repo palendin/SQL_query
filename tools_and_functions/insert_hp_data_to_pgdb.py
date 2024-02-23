@@ -62,9 +62,16 @@ def insert_hp_csv_data_to_pgdb(df, table):
             print(f"The table '{table}' does not exist.")
             raise Exception('create table in postgresql first with desired names. Make sure json names match them')
 
+        # if using this script solely to upload file
+        #df['culture_date'] = pd.to_datetime(df['culture_date'], format='%m/%d/%y')
+        # df.where(pd.notna(df),None) # df.where replaces NaN with None
+        # df.replace({pd.NaT: None}, inplace=True) #replace NaT with None)
+
         # Use the mapping to determine the corresponding PostgreSQL column name
         postgresql_columns = []
-        column_map = os.path.join(os.getcwd(),f'column_map/{table}.json') 
+        
+        column_map = os.path.join(os.getcwd(),f'column_map/{table}.json')
+        #column_map = '/Users/wayne/Documents/Programming/vscode/API/SQL_query/column_map/hydroxyproline_raw.json' 
         with open(column_map, 'r') as file:
             map = json.load(file)
         for col in df.columns:
@@ -100,7 +107,10 @@ def insert_hp_csv_data_to_pgdb(df, table):
 if __name__ == "__main__":
     path = resource_path('hp_biopsy_postgresql')
     archive_folder = '/Users/wayne/Documents/Programming/vscode/API/SQL_query/hp_biopsy_postgresql/archive'
-    insert_hp_csv_data_to_pgdb(path,file_name='biopsy_result.csv',table_name='biopsy_result', archive_folder=archive_folder)
+    # df = pd.read_csv('/Users/wayne/Documents/Programming/vscode/template-processing/postgres_manip/final_hp_raw_combined.csv')
+    # print(len(df))
+    # df = df.iloc[16000:18847]
+    # insert_hp_csv_data_to_pgdb(df,table='hydroxyproline_raw')
 
     # maybe i can implmeent this through looping the commit
      # rows_to_upload = 50
