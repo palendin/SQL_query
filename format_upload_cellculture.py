@@ -39,15 +39,15 @@ def tissue_production_processing(root_directory, archive_directory):
                                                 'rocking_hz_SP','rocking_angle_SP','feed_rate_mlpm_SP','outlet_rate_mlpm_SP',
                                                 'vessel_pressure_psi_SP','actuator_wait_mins','feed_delay','rest_time_hr',
                                                 'stirr_init_rpm','stirr_final_rpm','init_air_flow_mlpm','final_air_flow_mlpm','recirculation_rate_mlpm','process_mode'],
-                'sample_plan_column_order' : ['run_id','sampling_ETT_day','media_sample','biopsy','feed','monitor','hide_id','feed_id','sample_id','biopsy_id'], # 'sampling_ETT_hr'] # add this when uploading after CC4, including CC3
-                'seed_operation_column_order' : ['run_id','seed_volume_ml','concentration_cells_per_ml','seed_number','seed_date','flood_time_hrs',
+                'sample_plan_column_order' : ['run_id','sampling_ETT_day','media_sample','biopsy','feed','monitor','hide_id','feed_id','sample_id','biopsy_id','sampling_ETT_hr'],
+                'seed_operation_column_order' : ['run_id','seed_volume_ml','seed_concentration_cells_per_ml','seed_number','seed_date','flood_time_hrs',
                                                  'media_id','media_volume_ml','rocking_start_time','operator','comment'],
-                'process_values_column_order' : ['run_id','monitor_date','volume_ml','temperature_C','dO2','CO2','O2','pH','rocking_hz',
+                'process_values_column_order' : ['run_id','monitor_date','working_volume_ml','temperature_C','dO2','CO2','O2','pH','rocking_hz',
                                                  'rocking_angle','feed_rate_mlpm','outlet_rate_mlpm','vessel_pressure_psi','stirr_rpm','air_flow_mlpm','tank_weight_g',
                                                  'base_weight_g','acid_weight_g','feed_weight_g','feed_change_weight_g','waste_weight_g','waste_change_weight_g','offline_pH'],
                 'feed_operation_column_order' : ['feed_id','feed_date','media_id','media_exchange_volume_ml','time_out','time_in','operator','comment'],
                 'media_sampling_column_order' : ['sample_id','sample_date','operator','comment'],
-                'fresh_media_sampling_column_order' : ['experiment_id','sample_id','sampling_ETT_day','sample_date','operator','comment','media_key'], # 'sampling_ETT_hr'] # add this when uploading after CC4, including CC3
+                'fresh_media_sampling_column_order' : ['experiment_id','sample_id','sampling_ETT_day','sample_date','operator','comment','media_key'],
                 'biopsy_sampling_column_order' : ['biopsy_id','biopsy_date','biopsy_purpose','biopsy_diameter_mm','num_biopsy_taken','storage_location','operator','comment'],
                 'hide_harvest_column_order' : ['run_id','harvest_date','wet_weight_g','thickness_1_mm','thickness_2_mm','thickness_3_mm','thickness_4_mm',
                                                'thickness_5_mm','thickness_6_mm','avg_thickness_mm','mechanical_strength','fiber_protrusion',
@@ -59,8 +59,8 @@ def tissue_production_processing(root_directory, archive_directory):
             arranged_columns_list = list(column_order_list.values())
             
             # # for uploading individually selected tables
-            # sheet_names = ['run_deviation']
-            # arranged_columns_list = [column_order_list['run_deviation_column_order']]
+            # sheet_names = ['flex2_id_conversion']
+            # arranged_columns_list = [column_order_list['flex2_id_conversion_column_order']]
             # print(arranged_columns_list)
             
             # read all relevant sheets, assuming the excel file name is same as folder name
@@ -70,16 +70,21 @@ def tissue_production_processing(root_directory, archive_directory):
                 # read each sheet, remove empty rows
                 if i == 7: #fresh_media_sampling has additional rows that we dont need
                     data = df[sheet].iloc[:,0:7]
-                    #data = df[sheet].iloc[:,0:8] # use this when uploading after CC4, including CC3
                 else:
                     #continue
                     data = df[sheet]
                 
+                data.replace({pd.NaT: None}, inplace=True) #replace NaT with None
                 data = data.where(pd.notna(data),None) # df.where replaces NaN with None
                 data = data.dropna(axis=0,subset=[data.columns[0]])
-             
+                
+                # remove rows that are empty
+                nan_rows = data.iloc[:, [0, 1]].isna().any(axis=1)
+                data = data[~nan_rows]
+                #print(data)
+
                 # re-order columns (edit column order if needed)
-                data = data[arranged_columns_list[i]]
+                data = data[arranged_columns_list[i]] # this should also only show the column that I need
                 
                 # upload
                 insert_tissue_data_to_pgdb(data=data,table=sheet)
@@ -100,6 +105,22 @@ def tissue_production_processing(root_directory, archive_directory):
        
 #     return new_column
 
+def scalex_trend_processing(root_directory, archive_directory):
+
+    column_names = ['experiment_id','run_id','time']
+    for folder_name in os.listdir(root_directory):
+        if "CC" in folder_name:
+            folder_path = os.path.join(root_directory, folder_name)
+            file_list = os.listdir(folder_path)
+            #DCU_file = f'{folder_name} DCU Data.csv'
+            for f in file_list:
+                if "DCU" in f and f.endswith('.csv'):
+                    df = pd.read_csv(folder_path + '/' + f).iloc[1:,:]
+                    df.insert(0, 'experiment_id', folder_name)
+                    df.insert(1,'run_id',f'{folder_name}-1')
+                    for i, column in enumerate(df.columns):
+                        df.rename(columns={column:column_names[i]}, inplace=True)
+                
 
 
 
@@ -107,6 +128,7 @@ if __name__ == "__main__":
     path = resource_path('Tissue')
     archive = resource_path('Tissue/archive')
     tissue_production_processing(root_directory=path, archive_directory=archive)
+    #scalex_trend_processing(path,archive)
 
 
 
