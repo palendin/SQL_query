@@ -38,19 +38,6 @@ def insert_hp_csv_data_to_pgdb(df, table):
         
         cur = connection.cursor()
 
-        # try:
-        #     # Replace NaN values with None
-        #     df = data.where(pd.notna(data), None)
-            
-        #     # replace empty date with None
-        #     try:
-        #         df['reaction_date'] = df['reaction_date'].replace('01-00-1900',0).replace([0],[None])
-        #     except:
-        #         pass
-
-        # except:
-        #     print('unable to read the dataframe')
-
         # Check if the table exists
         query = f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s)"
         cur.execute(query, (table,))
@@ -105,20 +92,18 @@ def insert_hp_csv_data_to_pgdb(df, table):
 
                 
 if __name__ == "__main__":
-    path = resource_path('hp_biopsy_postgresql')
-    archive_folder = '/Users/wayne/Documents/Programming/vscode/API/SQL_query/hp_biopsy_postgresql/archive'
     # df = pd.read_csv('/Users/wayne/Documents/Programming/vscode/template-processing/postgres_manip/final_hp_raw_combined.csv')
     # print(len(df))
     # df = df.iloc[16000:18847]
     # insert_hp_csv_data_to_pgdb(df,table='hydroxyproline_raw')
 
-    # maybe i can implmeent this through looping the commit
-     # rows_to_upload = 50
-        # chunk_size = 10
-        # start=0
-        # end=0
-        # while end <= rows_to_upload:
-            
-        #     start, end = (start, start+chunk_size)
-        #     print(start,end)
-        #     start = end
+    #maybe i can implmeent this through looping the commit
+    rows_to_upload = 50
+    chunk_size = 10
+    start=0
+    end=0
+    while end <= rows_to_upload:
+        
+        start, end = (start, start+chunk_size)
+        print(start,end)
+        start = end
