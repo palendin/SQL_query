@@ -440,7 +440,6 @@ create table instrument.cell_count(
 	status varchar
 )
 
-
 drop table if exists instrument.flex2;
 create table instrument.flex2(
 	id serial primary key not null,
@@ -484,6 +483,54 @@ create table instrument.flex2(
     time_in_tray varchar,
     sample_time timestamp,
     operator varchar
+)
+
+-----------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+--ScaleX DCU
+drop table if exists DCU.scalex_hydro;
+create table DCU.scalex_hydro(
+    experiment_id varchar,
+    run_id varchar,
+    time timestamp,
+    time_hr float,
+    upper_pH_setpoint float,
+    lower_pH_setpoint float,
+    DO2_setpoint float,
+    temperature_setpoint_C float,
+    temperature_jacket_setpoint_C float,
+    heater_state integer,
+    heater_percent float,
+    pt_100_bio_state integer,
+    pt_100_bio_C float,
+    pt_100_jacket_state integer,
+    pt_100_jacket_C float,
+    pH_temperature_state integer,
+    pH_temperature_value float,
+    pH_state integer,
+    pH float,
+    DO2_temperature_state integer,
+    DO2_temperature_C float,
+    gas_air_state integer,
+    gas_air_percent float,
+    gas_O2_state integer,
+    gas_O2_percent float,
+    gas_CO2_state integer,
+    gas_CO2_percent float,
+    MFC_air_value_state integer,
+    MFC_air_ml_per_min float,
+    base_in_state integer,
+    base_in_ml_per_ml float,
+    recirculation_in_state integer,
+    recirculation_in_ml_per_min float,
+    recirculation_out_state integer,
+    recirculation_out_ml_per_min float,
+    DO2_state integer,
+    DO2_percent float,
+    MFC_air_cmd_state integer,
+    MFC_air_cmd_ml_per_min float,
+    media_in_sampling_state integer,
+    media_in_sampling_ml_per_min float,
 )
 
 
@@ -554,7 +601,10 @@ LEFT join analytical_db.biopsy_result as br using (biopsy_id)
 --copy table to another table
 CREATE TABLE new_table AS TABLE existing_table;
 
-
+--replace specific substring of strings with another substring in a column
+UPDATE instrument.flex2
+SET sample_id = REPLACE(sample_id, 'm3d', '.3d') -- replace m3d with .3d where sample_id contains CC4-1-s
+WHERE sample_id LIKE '%CC4-1-s%';
 
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------

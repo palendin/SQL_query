@@ -115,7 +115,7 @@ def insert_flex_csv_to_pg(combined_df, table_name):
         # Fetch the table length result
         row_count = cur.fetchone()[0]
         
-        # get the differential dataframe to upload only new dat
+        # get the differential dataframe to upload only new data
         if row_count < df_length:
             print(row_count)
             df = df.iloc[row_count:df_length,:]
