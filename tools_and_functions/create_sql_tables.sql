@@ -490,6 +490,7 @@ create table instrument.flex2(
 --ScaleX DCU
 drop table if exists DCU.scalex_hydro;
 create table DCU.scalex_hydro(
+    id serial primary key not null,
     experiment_id varchar,
     run_id varchar,
     time timestamp,
@@ -534,7 +535,66 @@ create table DCU.scalex_hydro(
 )
 
 
+-----------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+--DNA assay, schema: dna_raw and dna avg schema
+create table analytical_db.dna_raw(
+    id serial primary key not null,
+    dna_sid varchar,
+    experiment_id varchar,
+    sample_id varchar,
+    sample_type varchar,
+    description text,
+    sample_replicate integer,
+    sample_diameter_mm float,
+    digestion_volume_ul float,
+    digested_sample_volume_ul float,
+    buffer_volume_ul float,
+    dilution_factor float,
+    assay_volume_ul float,
+    std_conc_ng_per_well float,
+    biopsy_region varchar,
+    culture_duration_days float,
+    master_well_plate_location varchar,
+    abs float,
+    sheet_name varchar,
+    location varchar,
+    ng_per_well float,
+    ug_per_ml float,
+    ug_per_biopsy float,
+    ug_per_cm2 float,
+    r_squared float,
+    data_check varchar,
+    avg_ug_per_cm2 float,
+    avg_ug_per_cm2_std float
+)
 
+--dna_avg
+create table analytical_db.dna_avg(
+    id serial primary key not null,
+    dna_sid varchar,
+    experiment_id varchar,
+    sample_id varchar,
+    sample_type varchar,
+    description text,
+    sample_diameter_mm float,
+    digestion_volume_ul float,
+    digested_sample_volume_ul float,
+    buffer_volume_ul float,
+    dilution_factor float,
+    assay_volume_ul float,
+    biopsy_region varchar,
+    culture_duration_days float,
+    master_well_plate_location varchar,
+    avg_ug_per_cm2 float,
+    avg_ug_per_cm2_std float
+)
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
 
 --INSERT into the same row will change the specified value 
 INSERT INTO analytical_db.analytical_tracker (id, start_date) VALUES (1, '11/11/2023');
@@ -608,6 +668,7 @@ WHERE sample_id LIKE '%CC4-1-s%';
 
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
+--lookerstudio query
 
 --flex2 sample data
 SELECT 

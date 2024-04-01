@@ -64,8 +64,8 @@ def tissue_production_processing(root_directory, archive_directory):
             arranged_columns_list = list(column_order_list.values())
             
             # for uploading individually selected tables
-            # sheet_names = ['flex2_id_conversion']
-            # arranged_columns_list = [column_order_list['flex2_id_conversion_column_order']]
+            # sheet_names = ['media_sampling']
+            # arranged_columns_list = [column_order_list['media_sampling_column_order']]
             # print(arranged_columns_list)
             
             # read all relevant sheets, assuming the excel file name is same as folder name

@@ -1,0 +1,18 @@
+{
+    "dna_sid" : "dna_sid",
+    "experiment_id" : "experiment_id",
+    "sample_id" : "sample_id",
+    "sample_type" : "sample_type",
+    "description" : "description",
+    "sample_diameter_mm" : "sample_diameter_mm",
+    "digestion_volume_ul" : "digestion_volume_ul",
+    "digested_sample_volume_ul" : "digested_sample_volume_ul",
+    "buffer_volume_ul" : "buffer_volume_ul",
+    "dilution_factor" : "dilution_factor",
+    "assay_volume_ul" : "assay_volume_ul",
+    "biopsy_region" : "biopsy_region",
+    "culture_duration_days" : "culture_duration_days",
+    "master_well_plate_location" : "master_well_plate_location",
+    "avg_ug_per_cm2" : "avg_ug_per_cm2",
+    "avg_ug_per_cm2_std" : "avg_ug_per_cm2_std"
+}

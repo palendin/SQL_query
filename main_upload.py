@@ -4,6 +4,7 @@ from hp_data_pg import process_hp_data_and_insert_to_pg
 from format_upload_cellcount_pg import cell_count_processing
 from format_upload_cellculture import tissue_production_processing
 from format_upload_flex_pg import flex2_processing
+from dna_data_pg import process_dna_data_and_insert_to_pg
 import os, sys
 
 
@@ -58,16 +59,20 @@ path = resource_path('Tissue')
 archive = resource_path('Tissue/archive')
 tissue_production_processing(root_directory=path, archive_directory=archive)
 
-# uploade hp data from g-drive. postgresql table is serial id
+# upload hp data from g-drive. postgresql table is serial id
 hp_folder_path  = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data (Trained User Only)/Analytical/hydroxyproline'
 process_hp_data_and_insert_to_pg(hp_folder_path)
 
+# upload dna data from g-drive, postgresql table is serial id
+dna_folder_path  = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data (Trained User Only)/Analytical/DNA'
+process_dna_data_and_insert_to_pg(dna_folder_path)
 
-# upload flex2 data from g-drive (automated completely now, run as needed)
-run_flex2_upload = input('do you need to upload flex2 data from google sheet? (y/n)')
-if run_flex2_upload == 'y':
-    row = int(input('enter index to start appending from'))
-    start_row = int(row)
-    flex2_processing(start_row,file=None, archive_directory=None) # reads the g-sheet. Note: use if needed to catchup with data in postgres
-else:
-    print('skipping flex upload')
+
+# # upload flex2 data from g-drive (automated completely now, run as needed)
+# run_flex2_upload = input('do you need to upload flex2 data from google sheet? (y/n)')
+# if run_flex2_upload == 'y':
+#     row = int(input('enter index to start appending from'))
+#     start_row = int(row)
+#     flex2_processing(start_row,file=None, archive_directory=None) # reads the g-sheet. Note: use if needed to catchup with data in postgres
+# else:
+#     print('skipping flex upload')
