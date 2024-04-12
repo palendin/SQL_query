@@ -68,11 +68,11 @@ dna_folder_path  = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolab
 process_dna_data_and_insert_to_pg(dna_folder_path)
 
 
-# # upload flex2 data from g-drive (automated completely now, run as needed)
-# run_flex2_upload = input('do you need to upload flex2 data from google sheet? (y/n)')
-# if run_flex2_upload == 'y':
-#     row = int(input('enter index to start appending from'))
-#     start_row = int(row)
-#     flex2_processing(start_row,file=None, archive_directory=None) # reads the g-sheet. Note: use if needed to catchup with data in postgres
-# else:
-#     print('skipping flex upload')
+# upload flex2 data from g-drive (automated completely now, run as needed)
+run_flex2_upload = input('do you need to upload flex2 data from google sheet? (y/n)')
+if run_flex2_upload == 'y':
+    row = int(input('enter index to start appending from'))
+    start_row = int(row)
+    flex2_processing(start_row,file=None, archive_directory=None) # reads the g-sheet. Note: use if there are additional data needed to upload to postgres
+else:
+    print('skipping flex upload')

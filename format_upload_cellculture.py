@@ -44,7 +44,7 @@ def tissue_production_processing(root_directory, archive_directory):
                                                 'rocking_hz_SP','rocking_angle_SP','feed_rate_mlpm_SP','outlet_rate_mlpm_SP',
                                                 'vessel_pressure_psi_SP','actuator_wait_mins','feed_delay','rest_time_hr',
                                                 'stirr_init_rpm','stirr_final_rpm','init_air_flow_mlpm','final_air_flow_mlpm','recirculation_rate_mlpm','process_mode'],
-                'sample_plan_column_order' : ['run_id','sampling_ETT_day','media_sample','biopsy','feed','monitor','hide_id','feed_id','sample_id','biopsy_id'], #'sampling_ETT_hr'],
+                'sample_plan_column_order' : ['run_id','sampling_ETT_day','media_sample','biopsy','feed','monitor','hide_id','feed_id','sample_id','biopsy_id','sampling_ETT_hr'],
                 'seed_operation_column_order' : ['run_id','seed_volume_ml','seed_concentration_cells_per_ml','seed_number','seed_date','flood_time_hrs',
                                                  'media_id','media_volume_ml','rocking_start_time','operator','comment'],
                 'process_values_column_order' : ['run_id','monitor_date','working_volume_ml','temperature_C','dO2','CO2','O2','pH','rocking_hz',
@@ -64,9 +64,9 @@ def tissue_production_processing(root_directory, archive_directory):
             arranged_columns_list = list(column_order_list.values())
             
             # for uploading individually selected tables
-            # sheet_names = ['media_sampling']
-            # arranged_columns_list = [column_order_list['media_sampling_column_order']]
-            # print(arranged_columns_list)
+            sheet_names = ['run_detail']
+            arranged_columns_list = [column_order_list['run_detail_column_order']]
+            print(arranged_columns_list)
             
             # read all relevant sheets, assuming the excel file name is same as folder name
             try:
