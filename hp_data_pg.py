@@ -111,15 +111,14 @@ def process_hp_data_and_insert_to_pg(root_directory):
                         # insert to postgres
                         print(f'uploading experiment {experiment} to postgres')
                         insert_hp_csv_data_to_pgdb(data,table_list[i])
+                        
+                        # add experiment to spreadsheet to keep track
+                        worksheet.append_row(list(experiment))
+                        print(f'appended {experiment} to google sheet')
+                        sleep(2)
 
                     else:
-                        print('exp is complete but file is missing, check folder!') 
-
-                # add experiment to spreadsheet to keep track
-                worksheet.append_row(list(experiment))
-                print(f'appended {experiment} to google sheet')
-                sleep(2)
-
+                        print(f'exp is complete but file is missing, check folder {file_path}!') 
         else:
             continue
         

@@ -33,35 +33,46 @@ def cell_count_processing(root_directory, archive_directory):
     #     if ext == ".csv":
         file_path = os.path.join(root_directory, files)
 
-        try:
-            df = pd.read_csv(file_path)
-            df = df.iloc[:,0].str.split(':\t', expand=True)
-            df = df.set_index(0).transpose()
-            df_list.append(df)
-
-            # move files to archive folder after appending to list
-            shutil.move(file_path, archive_directory)
-        except:
-            print('cannot read file or already exist in the archive. If duplicate file, it will still get appended to the csv file')
-            continue
-        
-
-    # drops the column and reset with another index, renamed to 'id'
-    # combined_df = pd.concat(df_list)[df.columns].reset_index(drop=True).rename_axis('id')
-    if len(df_list) > 0:
-        combined_df = pd.concat(df_list)[df.columns].reset_index().iloc[:,2:] # skip the index and UTC time column
-        
-        #append to existing csv file, except the header (for troubleshooting purposes)
-        #combined_df.to_csv("/Users/wayne/Documents/Programming/vscode/API/SQL_query/nucleocounter_raw_csv/compiled_cell_count/cell_count.csv", mode='a', header=False, index=False)
-        
-        # export by append to google spreadsheet
-        exportDF(combined_df)
-
+      
+        df = pd.read_csv(file_path)
+        df = df.iloc[:,0].str.split(':\t', expand=True)
+        df = df.set_index(0).transpose()
+        df = df.reset_index().iloc[:,2:]
+        # exportDF(df)
         # note that postgresql has serial id, which will auto_index. do not need to worry about having the id column.
         cell_count = "cell_count"
-        insert_cellcount_csv_to_pg(combined_df,cell_count)
-    else:
-        print('no new files to upload')
+        try:
+            insert_cellcount_csv_to_pg(df,cell_count)
+            shutil.move(file_path, archive_directory)
+        except:
+            print(f'file {files} is having trouble inserting into database')
+        # df_list.append(df)
+        # move files to archive folder after appending to list
+        # shutil.move(file_path, archive_directory)
+
+    # # drops the column and reset with another index, renamed to 'id'
+    # # combined_df = pd.concat(df_list)[df.columns].reset_index(drop=True).rename_axis('id')
+    # if len(df_list) > 0:
+    #     combined_df = pd.concat(df_list)[df.columns].reset_index().iloc[:,2:] # skip the index and UTC time column
+        
+    #     #append to existing csv file, except the header (for troubleshooting purposes)
+    #     combined_df.to_csv('cellcount.csv', mode='a', header=False, index=False)
+        
+    #     # export by append to google spreadsheet
+    #     exportDF(combined_df)
+
+    #     # note that postgresql has serial id, which will auto_index. do not need to worry about having the id column.
+    #     cell_count = "cell_count"
+    #     insert_cellcount_csv_to_pg(combined_df,cell_count)
+    # else:
+    #     print('no new files to upload')
+
+    # # move file to archive after uploading
+    # for files in fileList:
+    #     file_path = os.path.join(root_directory, files)
+    #     shutil.move(file_path, archive_directory)
+    #     print(f'moved {files} to archive')
+        
 
 # using gspread to append to the existing spreadsheet in google doc
 def exportDF(df):

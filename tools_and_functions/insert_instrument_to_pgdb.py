@@ -68,6 +68,7 @@ def insert_cellcount_csv_to_pg(combined_df, table_name):
 
     except (Exception, Error) as error:
         print("Error while connecting to PostgreSQL", error)
+        exit()
     finally:
         if (connection):
             cur.close()
