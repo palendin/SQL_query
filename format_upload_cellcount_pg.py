@@ -38,10 +38,10 @@ def cell_count_processing(root_directory, archive_directory):
         df = df.iloc[:,0].str.split(':\t', expand=True)
         df = df.set_index(0).transpose()
         df = df.reset_index().iloc[:,2:]
-        # exportDF(df)
         # note that postgresql has serial id, which will auto_index. do not need to worry about having the id column.
         cell_count = "cell_count"
         try:
+            exportDF(df)
             insert_cellcount_csv_to_pg(df,cell_count)
             shutil.move(file_path, archive_directory)
         except:
@@ -49,7 +49,7 @@ def cell_count_processing(root_directory, archive_directory):
         # df_list.append(df)
         # move files to archive folder after appending to list
         # shutil.move(file_path, archive_directory)
-
+    print('done uploading cell count files')
     # # drops the column and reset with another index, renamed to 'id'
     # # combined_df = pd.concat(df_list)[df.columns].reset_index(drop=True).rename_axis('id')
     # if len(df_list) > 0:

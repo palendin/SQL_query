@@ -50,7 +50,7 @@ def tissue_production_processing(root_directory, archive_directory):
                 'process_values_column_order' : ['run_id','monitor_date','working_volume_ml','temperature_C','dO2','CO2','O2','pH','rocking_hz',
                                                  'rocking_angle','feed_rate_mlpm','outlet_rate_mlpm','vessel_pressure_psi','stirr_rpm','air_flow_mlpm','tank_weight_g',
                                                  'base_weight_g','acid_weight_g','feed_weight_g','feed_change_weight_g','waste_weight_g','waste_change_weight_g','offline_pH'],
-                'feed_operation_column_order' : ['feed_id','feed_date','media_id','media_exchange_volume_ml','time_out','time_in','operator','comment'],
+                'feed_operation_column_order' : ['feed_id','feed_date','media_id','media_exchange_volume_ml','time_out','time_in','operator','comment','ett_day'],
                 'media_sampling_column_order' : ['sample_id','sample_date','operator','comment'],
                 'fresh_media_sampling_column_order' : ['experiment_id','sample_id','sampling_ETT_day','sample_date','operator','comment','media_key'],
                 'biopsy_sampling_column_order' : ['biopsy_id','biopsy_date','biopsy_purpose','biopsy_diameter_mm','num_biopsy_taken','storage_location','operator','comment'],
@@ -64,9 +64,9 @@ def tissue_production_processing(root_directory, archive_directory):
             arranged_columns_list = list(column_order_list.values())
             
             # for uploading individually selected tables
-            sheet_names = ['run_detail']
-            arranged_columns_list = [column_order_list['run_detail_column_order']]
-            print(arranged_columns_list)
+            # sheet_names = ['run_detail']
+            # arranged_columns_list = [column_order_list['run_detail_column_order']]
+            # print(arranged_columns_list)
             
             # read all relevant sheets, assuming the excel file name is same as folder name
             try:
@@ -100,6 +100,7 @@ def tissue_production_processing(root_directory, archive_directory):
                 shutil.move(folder_path, archive_directory)
             except:
                 print(traceback.format_exc())
+                exit()
         else:
             print('continuing')
             continue # continue to loop through folder
@@ -152,8 +153,8 @@ def scalex_trend_processing(root_directory, archive_directory):
                     
                     rows_to_upload = len(df)
                     chunk_size = 1000
-                    start = 0
-                    end = 0
+                    start = 32000
+                    end = 32000
 
                     print('starting to upload')
 
