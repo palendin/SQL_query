@@ -64,6 +64,12 @@ def insert_tissue_data_to_pgdb(data, table):
         # creates a list of tuples (data_values) where each tuple represents a row in your DataFrame. Then, the executemany method is used to insert all the rows with a single query. This can significantly improve the performance compared to inserting rows one by one.
         data_values = [tuple(row) for _, row in df.iterrows()]
         cur.executemany(query, data_values)
+
+        # for index, row in df.iterrows():
+        #     print(f"Inserting row {index}: {row.to_dict()}")
+        #     cur.execute(query,row)
+        #     connection.commit()
+
             
         connection.commit()
         print(f'data from {table} upload successfully')

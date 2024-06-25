@@ -1,5 +1,6 @@
 import pandas as pd
 import os, sys
+import numpy as np
 import psycopg2
 from psycopg2 import Error
 import shutil
@@ -64,8 +65,8 @@ def tissue_production_processing(root_directory, archive_directory):
             arranged_columns_list = list(column_order_list.values())
             
             # for uploading individually selected tables
-            # sheet_names = ['run_detail']
-            # arranged_columns_list = [column_order_list['run_detail_column_order']]
+            # sheet_names = ['feed_operation']
+            # arranged_columns_list = [column_order_list['feed_operation_column_order']]
             # print(arranged_columns_list)
             
             # read all relevant sheets, assuming the excel file name is same as folder name
@@ -81,17 +82,18 @@ def tissue_production_processing(root_directory, archive_directory):
                         data = df[sheet]
                     
                     data.replace({pd.NaT: None}, inplace=True) #replace NaT with None
-                    data = data.where(pd.notna(data),None) # df.where replaces NaN with None
+                    #data = data.where(pd.notna(data),None) # df.where replaces NaN with None
+                    data.replace({np.nan: None}, inplace=True)
                     data = data.dropna(axis=0,subset=[data.columns[0]])
                     
                     # remove rows that is nan in either 1st or 2nd column
                     nan_rows = data.iloc[:, [0, 1]].isna().any(axis=1)
                     data = data[~nan_rows]
-                    #print(data)
+                    # print(data.head())
 
                     # re-order columns (edit column order if needed)
                     data = data[arranged_columns_list[i]] # this should also only show the column that I need
-                    
+        
                     # upload
                     print(f'uploading sheet {sheet}')
                     insert_tissue_data_to_pgdb(data=data,table=sheet)
@@ -122,8 +124,9 @@ def scalex_trend_processing(root_directory, archive_directory):
                     'Gas O2(46) - Value','Gas CO2(47) - State',	'Gas CO2(47) - Value','MFC Air Value(0) - State','MFC Air Value(0) - Value','Base In (LS14)(66) - State','Base In (LS14)(66) - Value',
                     'Recirculation IN (LS16)(67) - State','Recirculation IN (LS16)(67) - Value','Recirculation OUT (LS16)(68) - State','Recirculation OUT (LS16)(68) - Value','4-20mA dO2 (15) - State',
                     '4-20mA dO2 (15) - Value','MFC Air Cmd(18) - State','MFC Air Cmd(18) - Value','Media In / Sampling (LS25)(69) - State','Media In / Sampling (LS25)(69) - Value']
-    
+  
     for folder_name in os.listdir(root_directory):
+
         if "CC" in folder_name:
             folder_path = os.path.join(root_directory, folder_name)
             file_list = os.listdir(folder_path)
@@ -152,32 +155,36 @@ def scalex_trend_processing(root_directory, archive_directory):
                     #     df.rename(columns={column:column_names[i]}, inplace=True)
                     
                     rows_to_upload = len(df)
-                    chunk_size = 1000
-                    start = 32000
-                    end = 32000
+                    upload = input(f'uploading total {rows_to_upload} (y/n)')
+                    if upload == 'y':
+                        chunk_size = 1000
+                        start = 3000
+                        end = len(df)
 
-                    print('starting to upload')
+                        print('starting to upload')
 
-                    while end <= rows_to_upload:
-                        
-                        start, end = (start, start+chunk_size)
-                        
-                        # dataframe to upload
-                        df_subset = df.iloc[start:end,:]
-                  
-                        print(f'uploading row {start} to {end}')
-                        
-                        #upload dataframe
-                        insert_scalex_csv_data_to_pgdb(df_subset,table='scalex_hydro')
+                        while end <= rows_to_upload:
+                            
+                            start, end = (start, start+chunk_size)
+                            
+                            # dataframe to upload
+                            df_subset = df.iloc[start:end,:]
+                    
+                            print(f'uploading row {start} to {end}')
+                            
+                            #upload dataframe
+                            insert_scalex_csv_data_to_pgdb(df_subset,table='scalex_hydro')
 
-                        start = end
+                            start = end
+                    else:
+                        exit()
     
 
 if __name__ == "__main__":
     path = resource_path('Tissue')
     archive = resource_path('Tissue/archive')
-    tissue_production_processing(root_directory=path, archive_directory=archive)
-    #scalex_trend_processing(path,archive)
+    #tissue_production_processing(root_directory=path, archive_directory=archive)
+    scalex_trend_processing(path,archive)
 
 
 
