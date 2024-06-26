@@ -12,6 +12,9 @@ from tools_and_functions.insert_hp_data_to_pgdb import insert_hp_csv_data_to_pgd
 from tools_and_functions.read_gsheet import read_gsheet
 import numpy as np
 from time import sleep
+import traceback
+import logging
+
 
 warnings.filterwarnings("ignore")
 
@@ -30,7 +33,11 @@ def resource_path(relative_path):
 
 # insert csv file from g-drive file by file into postgres
 def process_hp_data_and_insert_to_pg(root_directory):
- 
+    
+   # Set up logging
+    log_print_file_path = 'logs/hp_print.log'
+    logger_print = print_logging(log_print_file_path)
+    
     # file names to look for
     file_names = ['combined_raw_data.csv','biopsy_result.csv']
 
@@ -100,105 +107,91 @@ def process_hp_data_and_insert_to_pg(root_directory):
                         df = df[column_order[i]]
 
                         # replace NaN with None
-                        data = df.where(pd.notna(df), None)
-
-                        # replace empty date with None
+                        #data = df.where(pd.notna(df), None) # this no longer works in later version of pandas
+                        data = df.replace(np.nan,None)
+            
+                        # replace empty date or weird date with None
                         try:
+                            data['culture_date'] = data['culture_date'].replace('01-00-1900',0).replace([0],[None])
                             data['reaction_date'] = data['reaction_date'].replace('01-00-1900',0).replace([0],[None])
                         except:
                             pass
                         
                         # insert to postgres
-                        print(f'uploading experiment {experiment} to postgres')
-                        insert_hp_csv_data_to_pgdb(data,table_list[i])
-                        
-                        # add experiment to spreadsheet to keep track
-                        worksheet.append_row(list(experiment))
-                        print(f'appended {experiment} to google sheet')
-                        sleep(2)
+                        try:
+                            logger_print.info(f'uploading experiment {experiment}, table {table_list[i]} to postgres')
+                            insert_hp_csv_data_to_pgdb(data,table_list[i])
+                        except:
+                            traceback_msg = traceback.format_exc()
+                            raise ValueError(traceback_msg)
 
                     else:
-                        print(f'exp is complete but file is missing, check folder {file_path}!') 
+                        logger_print.info(f'{experiment} has file is missing, check folder {file_path}!')
+                        continue
+
+                # add experiment to spreadsheet to keep track
+                worksheet.append_row(list(experiment))
+                logger_print.info(f'appended {experiment} to google sheet')
+                sleep(2)
         else:
             continue
         
     print('hydroxyproline upload complete')
 
-# # insert csv file by file into postgres
-# def process_hp_data_and_insert_to_pg(root_directory, archive_path):
-#     #print(root_directory)
+def setup_logging(log_file_path):
+    # Create the logs directory if it does not exist
+    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 
-#     # file names to look for
-#     file_names = ['combined_raw_data.csv','biopsy_result.csv']
+    # Set up logging for errors
+    logging.basicConfig(
+        level=logging.ERROR,  # Log only errors and above
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file_path),
+            logging.StreamHandler(sys.stdout)  # optional arg. Log to console (stdout)
+        ]
+    )
+    logger_error = logging.getLogger('error_logger')
+    logger_error.propagate = False  # Disable propagation to root logger
 
-#     # table names in postgres
-#     table_list = ['hydroxyproline_raw','biopsy_result']
+    return logger_error
 
-#     # define some to rename columns
-#     raw_data_columns_rename = {'experiment_ID':'experiment_id','sample_ID':'sample_id','hide_ID':'biopsy_id','biomaterial_ID':'biomaterial_id','digest volume ul':'digestion_volume_ul','digest sample volume ul':'assay_volume_ul'}
-#     biopsy_columns_rename = {'experiment_ID':'experiment_id','hide_ID':'biopsy_id','biomaterial_ID':'biomaterial_id'}
 
-#     #define columns orders
-#     raw_data_column_order = ['experiment_id','sample_id','sample_type','sample_state','sample_lot','biopsy_id','culture_date','biopsy_replicate','biopsy_diameter_mm',
-#                     'digestion_volume_ul','dilution_factor','assay_volume_ul','loaded_weight1_mg','loaded_weight2_mg','tube_weight1_mg','tube_weight2_mg','operator',
-#                     'std_conc_ug_per_well','media_type','biomaterial_id','reaction_date','abs','sheet_name','location','data check','normalized_abs','r_squared',
-#                     'net weight mg','ug/well','mg/ml','mg/biopsy','mg/cm2']
+def print_logging(log_print_path):
+     # Create the logs directory if it does not exist
+    os.makedirs(os.path.dirname(log_print_path), exist_ok=True)
     
-#     biopsy_column_order = ['experiment_id',	'biopsy_id','biomaterial_id','mg/biopsy mean','mg/biopsy std','mg/ml mean','mg/ml std',	
-#                            'mg/cm2 mean','mg/cm2 std','net weight mg','tissue areal density mg/cm2']
-    
-#     # put rename and order in a list for forloop
-#     column_rename = [raw_data_columns_rename, biopsy_columns_rename]
-#     column_order = [raw_data_column_order,biopsy_column_order]
+    # Create a FileHandler to log to the specified file
+    handler_print = logging.FileHandler(log_print_path)
 
-#     # Loop through each subfolder in folder directory 
-#     for folder_name in os.listdir(root_directory):
+    # Configure the format of log messages
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    handler_print.setFormatter(formatter)
 
-#         # if folder name is an experiment folder:
-#         if "HP" in folder_name:
-#             folder_path = os.path.join(root_directory, folder_name)
-#             # loop through the file names in the experiment folder
-#             for i,file in enumerate(file_names):
-#                 file_path = os.path.join(folder_path, file)
-                
-#                 # check if file exist, if it does, append the content to list
-#                 if os.path.exists(file_path):
-#                     data = pd.read_csv(folder_path + '/' + file)
-#                     df = pd.DataFrame(data)
-        
-#                     # rename some columns for consistency
-#                     df = df.rename(columns=column_rename[i])
+    # Create a logger and add the FileHandler to it
+    logger = logging.getLogger('print_logger')
+    logger.setLevel(logging.INFO)  # Set the logging level to INFO
+    logger.addHandler(handler_print)
 
-#                     # reorder columns
-#                     df = df[column_order[i]]
 
-#                     # replace NaN with None
-#                     data = df.where(pd.notna(df), None)
-
-#                     # replace empty date with None
-#                     try:
-#                         data['reaction_date'] = data['reaction_date'].replace('01-00-1900',0).replace([0],[None])
-#                     except:
-#                         pass
-                    
-#                     # insert to postgres
-#                     insert_hp_csv_data_to_pgdb(data,table_list[i])
-
-#                 else:
-#                     continue    
-            
-#             # move folder to archive
-#             shutil.move(folder_path, archive_path)
-
-#         else:
-#             continue
+    return logger
 
                 
 if __name__ == "__main__":
     # path = resource_path('HP_assay') #where the experiment folders are
     # archive_path = resource_path('HP_assay/archive')
     # process_hp_data_and_insert_to_pg(path,archive_path)
+    
+    # Set up logging
+    log_error_file_path = 'logs/hp_error.log'
+
+    # Set up logging
+    logger_error = setup_logging(log_error_file_path)
 
     hp_folder_path  = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data (Trained User Only)/Analytical/hydroxyproline'
-    process_hp_data_and_insert_to_pg(hp_folder_path)
-
+    try:
+        process_hp_data_and_insert_to_pg(hp_folder_path)
+    except Exception as e:
+        # this will log the msg as well as any exception error within the functions
+        logger_error.exception(f"An error occurred while processing and inserting data")
+        sys.exit(1)

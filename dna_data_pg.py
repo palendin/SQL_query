@@ -12,6 +12,8 @@ from tools_and_functions.insert_hp_data_to_pgdb import insert_hp_csv_data_to_pgd
 from tools_and_functions.read_gsheet import read_gsheet
 import numpy as np
 from time import sleep
+import traceback
+import logging
 
 warnings.filterwarnings("ignore")
 
@@ -30,14 +32,16 @@ def resource_path(relative_path):
 
 # insert csv file from g-drive file by file into postgres
 def process_dna_data_and_insert_to_pg(root_directory):
- 
+    
+    # Set up logging
+    log_print_file_path = 'logs/dna_print.log'
+    logger_print = print_logging(log_print_file_path)
+
     # file names to look for
     file_names = ['combined_raw_data.csv','averaged_data.csv']
 
     # table names in postgres
     table_list = ['dna_raw','dna_avg']
-
-    # rename some of the columns
 
     #define columns orders
     dna_raw_order = ['dna_sid', 'experiment_id',
@@ -100,18 +104,24 @@ def process_dna_data_and_insert_to_pg(root_directory):
                         df = df[column_order[i]]
 
                         # replace NaN with None
-                        data = df.where(pd.notna(df), None)
+                        # data = df.where(pd.notna(df), None) no longer works with newest version of pandas
+                        data = df.replace(np.nan,None)
 
-                        # insert to postgres (can use the same upload script)
-                        print(f'uploading {experiment} to postgres')
-                        insert_hp_csv_data_to_pgdb(data,table_list[i])
+                        try:
+                            # insert to postgres (can use the same upload script)
+                            logger_print.info(f'uploading experiment {experiment}, table {table_list[i]} to postgres')
+                            insert_hp_csv_data_to_pgdb(data,table_list[i])
+                        except:
+                            traceback_msg = traceback.format_exc()
+                            raise ValueError(traceback_msg)
 
                     else:
-                        print('exp is complete but file is missing, check folder!') 
+                        logger_print.info(f'{experiment} has file is missing, check folder {file_path}!')
+                        continue
 
                 # add experiment to spreadsheet to keep track
                 worksheet.append_row(list(experiment))
-                print(f'appended {experiment} to google sheet')
+                logger_print.info(f'appended {experiment} to google sheet')
                 sleep(2)
 
         else:
@@ -120,12 +130,59 @@ def process_dna_data_and_insert_to_pg(root_directory):
     print('hydroxyproline upload complete')
 
 
+def setup_logging(log_file_path):
+    # Create the logs directory if it does not exist
+    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+
+    # Set up logging for errors
+    logging.basicConfig(
+        level=logging.ERROR,  # Log only errors and above
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file_path),
+            logging.StreamHandler(sys.stdout)  # optional arg. Log to console (stdout)
+        ]
+    )
+    logger_error = logging.getLogger('error_logger')
+    logger_error.propagate = False  # Disable propagation to root logger
+
+    return logger_error
+
+
+def print_logging(log_print_path):
+     # Create the logs directory if it does not exist
+    os.makedirs(os.path.dirname(log_print_path), exist_ok=True)
+    
+    # Create a FileHandler to log to the specified file
+    handler_print = logging.FileHandler(log_print_path)
+
+    # Configure the format of log messages
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    handler_print.setFormatter(formatter)
+
+    # Create a logger and add the FileHandler to it
+    logger = logging.getLogger('print_logger')
+    logger.setLevel(logging.INFO)  # Set the logging level to INFO
+    logger.addHandler(handler_print)
+
+    return logger
                 
 if __name__ == "__main__":
     # path = resource_path('HP_assay') #where the experiment folders are
     # archive_path = resource_path('HP_assay/archive')
     # process_hp_data_and_insert_to_pg(path,archive_path)
 
+    # Set up logging
+    log_file_path = 'logs/dna_error.log'
+    logger = setup_logging(log_file_path)
+
     dna_folder_path  = '/Users/wayne/Library/CloudStorage/GoogleDrive-wayne@vitrolabsinc.com/Shared drives/R&PD Team/Vitrolab Experimental Data (Trained User Only)/Analytical/DNA'
-    process_dna_data_and_insert_to_pg(dna_folder_path)
+    try:
+        process_dna_data_and_insert_to_pg(dna_folder_path)
+    except Exception as e:
+        # this will log the msg as well as any exception error within the functions
+        logger.exception(f"An error occurred while processing and inserting data")
+    finally:
+        sys.exit(1)
+
 

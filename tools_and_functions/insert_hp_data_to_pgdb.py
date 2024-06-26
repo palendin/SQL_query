@@ -67,7 +67,7 @@ def insert_hp_csv_data_to_pgdb(df, table):
     
         # Generate the column names dynamically
         columns = ', '.join(postgresql_columns)
-    
+
         # Generate the placeholders for the VALUES clause based on the number of columns
         placeholders = ', '.join(['%s'] * len(df.columns))
 
@@ -83,7 +83,8 @@ def insert_hp_csv_data_to_pgdb(df, table):
         print(f'data from {table} upload successfully')
                  
     except (Exception) as error:
-        print(traceback.format_exc())
+        msg = traceback.format_exc()
+        raise ValueError(msg)
     finally:
         if (connection):
             cur.close()
