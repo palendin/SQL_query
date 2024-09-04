@@ -1,3 +1,5 @@
+# for manual upload new rows from data_from_instrument to postgres
+
 import pandas as pd
 import os, sys
 import psycopg2

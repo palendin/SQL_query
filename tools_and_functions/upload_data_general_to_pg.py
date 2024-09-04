@@ -7,9 +7,10 @@ from psycopg2 import Error
 import json
 import shutil
 from datetime import datetime
-from tenacity import retry, stop_after_attempt, wait_fixed
+#from tenacity import retry, stop_after_attempt, wait_fixed
 warnings.filterwarnings("ignore")
 import traceback
+import numpy as np
 
 # for executable purposes, defining a dynamic base path is needed for executing at different locations
 # for relative path, this is a folder created in the same directory as the executable for storing HP_assay experiments
@@ -24,8 +25,8 @@ def resource_path(relative_path):
     return path
 
 # loop through each subfolder and upload specified csv file to postgresql database table
-@retry(stop=stop_after_attempt(10), wait=wait_fixed(5))
-def insert_tissue_data_to_pgdb(data, table):
+#@retry(stop=stop_after_attempt(10), wait=wait_fixed(5))
+def insert_data_to_pgdb(data, table):
     
     # connect to db
     try:
@@ -97,8 +98,18 @@ def insert_tissue_data_to_pgdb(data, table):
 if __name__ == "__main__":
     #path = resource_path('hp_biopsy_postgresql')
     #archive_folder = '/Users/wayne/Documents/Programming/vscode/API/SQL_query/hp_biopsy_postgresql/archive'
-    df = None
-    insert_tissue_data_to_pgdb(data=df,table='metabolite_calc')
+    df = pd.read_csv('/Users/wayne/Downloads/m.csv')
+    # convert empty cells to None
+    df = df.replace(r'^\s*$', np.nan, regex=True)
+    df = df.where(pd.notna(df),None)
+
+    # replace cells with "-" with None
+    df = df.replace("-",np.nan)
+    df = df.where(pd.notna(df),None)
+
+    df.replace({np.nan: None}, inplace=True)
+    print(df.head())
+    insert_data_to_pgdb(data=df,table='metabolite_calc')
 
     # maybe i can implmeent this through looping the commit
      # rows_to_upload = 50

@@ -25,7 +25,7 @@ def resource_path(relative_path):
 def tissue_production_processing(root_directory, archive_directory):
 
     # upload trend data
-    scalex_trend_processing(root_directory, archive_directory)
+    # scalex_trend_processing(root_directory, archive_directory)
 
     # upload excel data
     for folder_name in os.listdir(root_directory):
@@ -34,7 +34,7 @@ def tissue_production_processing(root_directory, archive_directory):
 
             # name for each tab in the excel file. This is also the table name in postgresql
             sheet_names = ['run_detail', 'run_parameter','sample_plan','seed_operation','process_values','feed_operation',
-                           'media_sampling','fresh_media_sampling','biopsy_sampling','hide_harvest','run_deviation', 'flex2_id_conversion']
+                           'media_sampling','fresh_media_sampling','biopsy_sampling','hide_harvest','run_deviation', 'flex2_id_conversion','metabolite_calc']
 
             # used for re-arranging cols, assuming they match cols in file
             column_order_list = {
@@ -50,7 +50,7 @@ def tissue_production_processing(root_directory, archive_directory):
                                                  'media_id','media_volume_ml','rocking_start_time','operator','comment'],
                 'process_values_column_order' : ['run_id','monitor_date','working_volume_ml','temperature_C','dO2','CO2','O2','pH','rocking_hz',
                                                  'rocking_angle','feed_rate_mlpm','outlet_rate_mlpm','vessel_pressure_psi','stirr_rpm','air_flow_mlpm','tank_weight_g',
-                                                 'base_weight_g','acid_weight_g','feed_weight_g','feed_change_weight_g','waste_weight_g','waste_change_weight_g','offline_pH'],
+                                                 'base_weight_g','acid_weight_g','feed_weight_g','feed_change_weight_g','waste_weight_g','waste_change_weight_g','offline_pH','ett_day'],
                 'feed_operation_column_order' : ['feed_id','feed_date','media_id','media_exchange_volume_ml','time_out','time_in','operator','comment','ett_day'],
                 'media_sampling_column_order' : ['sample_id','sample_date','operator','comment'],
                 'fresh_media_sampling_column_order' : ['experiment_id','sample_id','sampling_ETT_day','sample_date','operator','comment','media_key'],
@@ -60,14 +60,24 @@ def tissue_production_processing(root_directory, archive_directory):
                                                'surface_smoothness','operator','comment'],
                 'run_deviation_column_order' : ['run_id','deviation','comments'],
                 'flex2_id_conversion_column_order' : ['flex2_id','sample_id'],
+                'metabolite_calc_column_order' : ['experiment_id',	'run_id',	'sampling_ett_day',	'sample_id',	'sample_date',	'pH',	'gln_mmol_per_l',	'gluc_g_per_l',	
+                                                  'glu_mmol_per_l',	'nh4_mmol_per_l',	'lac_g_per_l',	'tank_volume_l',	'exchange_volume_l',	'fresh_gln_mmol_per_l',	
+                                                  'fresh_gluc_g_per_l',	'fresh_glu_mmol_per_l',	'fresh_nh4_mmol_per_l',	'fresh_lac_g_per_l',	'res_gln_mmol_per_l',	'res_gluc_g_per_l',	
+                                                  'res_glu_mmol_per_l',	'res_nh4_mmol_per_l',	'res_lac_g_per_l',	'exchange_vol_l',	'interval_gln_mmol_per_l',	'interval_gluc_g_per_l',	
+                                                  'interval_glu_mmol_per_l',	'interval_nh4_mmol_per_l',	'interval_lac_g_per_l',	'res_interval_gln_mmol_per_l',	'res_interval_gluc_g_per_l',
+                                                    'res_interval_glu_mmol_per_l',	'res_interval_nh4_mmol_per_l',	'res_interval_lac_g_per_l',	'cum_gln_mmol_per_l',	
+                                                    'cum_gluc_g_per_l',	'cum_glu_mmol_per_l',	'cum_nh4_mmol_per_l',	'cum_lac_g_per_l',	'res_cum_gln_mmol_per_l',	
+                                                    'res_cum_gluc_g_per_l',	'res_cum_glu_mmol_per_l',	'res_cum_nh4_mmol_per_l',	'res_cum_lac_g_per_l',	'total_gln_mmol_per_l',	
+                                                    'total_gluc_g_per_l',	'total_glu_mmol_per_l',	'total_nh4_mmol_per_l',	'total_lac_g_per_l',	'total_gln_mmol',	
+                                                    'total_gluc_g',	'total_glu_mmol',	'total_nh4_mmol',	'total_lac_g']
                 }
             
             arranged_columns_list = list(column_order_list.values())
             
             # for uploading individually selected tables
-            # sheet_names = ['feed_operation']
-            # arranged_columns_list = [column_order_list['feed_operation_column_order']]
-            # print(arranged_columns_list)
+            sheet_names = ['metabolite_calc']
+            arranged_columns_list = [column_order_list['metabolite_calc_column_order']]
+            print(arranged_columns_list)
             
             # read all relevant sheets, assuming the excel file name is same as folder name
             try:
@@ -81,6 +91,8 @@ def tissue_production_processing(root_directory, archive_directory):
                         #continue
                         data = df[sheet]
                     
+                    data = data.replace("-",np.nan)
+                    
                     data.replace({pd.NaT: None}, inplace=True) #replace NaT with None
                     #data = data.where(pd.notna(data),None) # df.where replaces NaN with None
                     data.replace({np.nan: None}, inplace=True)
@@ -89,7 +101,6 @@ def tissue_production_processing(root_directory, archive_directory):
                     # remove rows that is nan in either 1st or 2nd column
                     nan_rows = data.iloc[:, [0, 1]].isna().any(axis=1)
                     data = data[~nan_rows]
-                    # print(data.head())
 
                     # re-order columns (edit column order if needed)
                     data = data[arranged_columns_list[i]] # this should also only show the column that I need
@@ -155,11 +166,12 @@ def scalex_trend_processing(root_directory, archive_directory):
                     #     df.rename(columns={column:column_names[i]}, inplace=True)
                     
                     rows_to_upload = len(df)
-                    upload = input(f'uploading total {rows_to_upload} (y/n)')
+
+                    chunk_size = 1000
+                    start = 0
+                    end = len(df)
+                    upload = input(f'total of {rows_to_upload} rows, uploading from {start} to {end}, (y/n)')
                     if upload == 'y':
-                        chunk_size = 1000
-                        start = 3000
-                        end = len(df)
 
                         print('starting to upload')
 
@@ -183,8 +195,8 @@ def scalex_trend_processing(root_directory, archive_directory):
 if __name__ == "__main__":
     path = resource_path('Tissue')
     archive = resource_path('Tissue/archive')
-    #tissue_production_processing(root_directory=path, archive_directory=archive)
-    scalex_trend_processing(path,archive)
+    tissue_production_processing(root_directory=path, archive_directory=archive)
+    #scalex_trend_processing(path,archive)
 
 
 

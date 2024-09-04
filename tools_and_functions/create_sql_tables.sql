@@ -401,6 +401,64 @@ create table tissue_production.flex2_id_conversion(
     sample_id varchar
 )
 
+drop table if exists tissue_production.metabolite_calc;
+create table tissue_production.metabolite_calc(
+    id serial primary key not null,
+    experiment_id varchar,
+    run_id varchar,
+    sampling_ett_day float,
+	sample_id varchar,
+    sample_date timestamp,
+    pH float,
+    gln_mmol_per_l float,
+    gluc_g_per_l float,
+    glu_mmol_per_l float,
+    nh4_mmol_per_l float,
+    lac_g_per_l float,
+	tank_volume_l float,
+	exchange_volume_l float,
+    fresh_gln_mmol_per_l float,
+    fresh_gluc_g_per_l float,
+    fresh_glu_mmol_per_l float,
+    fresh_nh4_mmol_per_l float,
+    fresh_lac_g_per_l float,
+    res_gln_mmol_per_l float,
+    res_gluc_g_per_l float,
+    res_glu_mmol_per_l float,
+    res_nh4_mmol_per_l float,
+    res_lac_g_per_l float,
+	exchange_vol_l float,
+    interval_gln_mmol_per_l float,
+    interval_gluc_g_per_l float,
+    interval_glu_mmol_per_l float,
+    interval_nh4_mmol_per_l float,
+    interval_lac_g_per_l float,
+    res_interval_gln_mmol_per_l float,
+    res_interval_gluc_g_per_l float,
+    res_interval_glu_mmol_per_l float,
+    res_interval_nh4_mmol_per_l float,
+    res_interval_lac_g_per_l float,
+    cum_gln_mmol_per_l float,
+    cum_gluc_g_per_l float,
+    cum_glu_mmol_per_l float,
+    cum_nh4_mmol_per_l float,
+    cum_lac_g_per_l float,
+    res_cum_gln_mmol_per_l float,
+    res_cum_gluc_g_per_l float,
+    res_cum_glu_mmol_per_l float,
+    res_cum_nh4_mmol_per_l float,
+    res_cum_lac_g_per_l float,
+    total_gln_mmol_per_l float,
+    total_gluc_g_per_l float,
+    total_glu_mmol_per_l float,
+    total_nh4_mmol_per_l float,
+    total_lac_g_per_l float,
+    total_gln_mmol float,
+    total_gluc_g float,
+    total_glu_mmol float,
+    total_nh4_mmol float,
+    total_lac_g float
+)
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
 
@@ -592,7 +650,6 @@ create table analytical_db.dna_avg(
 
 
 
-
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
 
@@ -666,6 +723,49 @@ UPDATE instrument.flex2
 SET sample_id = REPLACE(sample_id, 'm3d', '.3d') -- replace m3d with .3d where sample_id contains CC4-1-s
 WHERE sample_id LIKE '%CC4-1-s%';
 
+--count all rows from all schemas
+create function count_rows_of_table(
+  schema    text,
+  tablename text
+  )
+  returns   integer
+
+  security  invoker
+  language  plpgsql
+as
+$body$
+declare
+  query_template constant text not null :=
+    '
+      select count(*) from "?schema"."?tablename"
+    ';
+
+  query constant text not null :=
+    replace(
+      replace(
+        query_template, '?schema', schema),
+     '?tablename', tablename);
+
+  result int not null := -1;
+begin
+  execute query into result;
+  return result;
+end;
+$body$;
+
+select
+  table_schema,
+  table_name,
+  count_rows_of_table(table_schema, table_name)
+from
+  information_schema.tables
+where 
+  table_schema not in ('pg_catalog', 'information_schema')
+  and table_type = 'BASE TABLE'
+order by
+  1 asc,
+  3 desc;
+
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 --lookerstudio query
@@ -725,7 +825,7 @@ LEFT JOIN tissue_production.flex2_id_conversion as fic using(sample_id)
 LEFT JOIN instrument.flex2 as f2 ON fic.flex2_id = f2.sample_id
 
 
---tissue experiments with flex and hydroxyrpoline data
+--tissue experiments with flex and media hydroxyrpoline data
 SELECT 
 	cc_tracker.experiment_id,
 	cc_tracker.status,
@@ -741,9 +841,7 @@ SELECT
 	rd.end_date,
 	rd.hide_id,
 	sp.sampling_ett_day,
-	sp.sample_id,
-	ms.sample_date,
-    ms.media_exchange_volume_ml,
+	fic.sample_id,
 	fic.flex2_id,
 	f2.ph,
 	f2.po2,
@@ -757,17 +855,17 @@ SELECT
 	f2.k,
 	f2.ca,
 	f2.osm,
-	f2.vessel_id,
-	f2.batch_id,
-	f2.vessel_temperature_c,
-	f2.vessel_pressure_psi,
-	f2.sparging_o2,
-	f2.ph_at_temp,
-	f2.po2_at_temp,
-	f2.pco2_at_temp,
-	f2.o2_saturation,
-	f2.co2_saturation,
-	f2.hco3,
+-- 	f2.vessel_id,
+-- 	f2.batch_id,
+-- 	f2.vessel_temperature_c,
+-- 	f2.vessel_pressure_psi,
+-- 	f2.sparging_o2,
+-- 	f2.ph_at_temp,
+-- 	f2.po2_at_temp,
+-- 	f2.pco2_at_temp,
+-- 	f2.o2_saturation,
+-- 	f2.co2_saturation,
+-- 	f2.hco3,
 	fo.feed_date,
 	fo.media_exchange_volume_ml,
 	fo.media_id,
@@ -777,17 +875,17 @@ SELECT
 	hp_raw.mg_per_ml
 	
 FROM tracker.cell_culture_tracker as cc_tracker
-
 LEFT JOIN tissue_production.run_detail as rd using(experiment_id) 
 LEFT JOIN tissue_production.sample_plan as sp using(run_id)
 LEFT JOIN tissue_production.media_sampling as ms using(sample_id)
 LEFT JOIN tissue_production.flex2_id_conversion as fic using(sample_id)
-LEFT JOIN instrument.flex2 as f2 ON fic.flex2_id = f2.sample_id
+LEFT JOIN instrument.flex2 as f2 ON (fic.flex2_id = f2.sample_id)
 LEFT JOIN tissue_production.feed_operation as fo ON (sp.feed_id = fo.feed_id)
-INNER JOIN analytical_db.hydroxyproline_raw as hp_raw ON (ms.sample_id = hp_raw.sample_id)
-LEFT JOIN tracker.analytical_tracker as atr ON (hp_raw.experiment_id = atr.experiment_id)
+LEFT JOIN analytical_db.hydroxyproline_raw as hp_raw ON (ms.sample_id = hp_raw.sample_id)
+LEFT JOIN tracker.analytical_tracker as atr ON (atr.experiment_id = hp_raw.experiment_id)
 
-where atr.status = 'complete'
+--where rd.experiment_id = 'CC4'
+
 
 
 --tissue production data with biopsy results

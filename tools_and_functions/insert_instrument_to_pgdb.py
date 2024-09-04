@@ -117,10 +117,10 @@ def insert_flex_csv_to_pg(combined_df, table_name):
         row_count = cur.fetchone()[0]
         
         # get the differential dataframe to upload only new data
-        if row_count < df_length:
-            print(row_count)
-            df = df.iloc[row_count:df_length,:]
-    
+        if row_count != df_length:
+            #df = df.iloc[row_count:df_length,:]
+
+            print(df)
             # column map
             postgresql_columns = []
 
@@ -131,12 +131,16 @@ def insert_flex_csv_to_pg(combined_df, table_name):
             # Generate the column names dynamically for postgresql query format
             columns = ', '.join(postgresql_columns)
 
+            print(columns)
+
             # Generate the placeholders for the VALUES clause based on the number of columns
             placeholders = ', '.join(['%s'] * len(df.columns))
             # Create the INSERT query (will insert even if duplicate, but conflict will dictates what it will do
             query = f'''INSERT INTO instrument.{table_name}({columns}) VALUES ({placeholders}) ''' #ON CONFLICT (id) DO NOTHING'''
 
             data_values = [tuple(row) for _, row in df.iterrows()]
+
+            print(data_values)
             cur.executemany(query, data_values)
         
             connection.commit()
