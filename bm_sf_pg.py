@@ -100,7 +100,7 @@ def resource_path(relative_path):
 #             connection.close()
 #             print("PostgreSQL connection is closed")
     
-def insert_bm_sf_to_pgdb(file_id, sheet_list, table_name):
+def insert_bm_sf_to_pgdb(file_id, sheet_list, table_name, column_positions):
     
     try:
         connection = psycopg2.connect(
@@ -116,8 +116,8 @@ def insert_bm_sf_to_pgdb(file_id, sheet_list, table_name):
             data = read_gsheet(file_id, sheet).replace('', np.nan, regex=True)
             df = data.where(pd.notna(data), None) # replace NaN value with None    
 
-            df = df[df['id'].notna()] # get all rows that does not have null id
-
+            df = df[df['id'].notna()].iloc[:,0:column_positions[i]] # get all rows that does not have null id
+            #print(df.head())
             query = f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s)"
             cur.execute(query, (table_name[i],))
             table_exists = cur.fetchone()[0]

@@ -25,7 +25,7 @@ def resource_path(relative_path):
 def tissue_production_processing(root_directory, archive_directory):
 
     # upload trend data
-    # scalex_trend_processing(root_directory, archive_directory)
+    scalex_trend_processing(root_directory, archive_directory)
 
     # upload excel data
     for folder_name in os.listdir(root_directory):
@@ -75,9 +75,9 @@ def tissue_production_processing(root_directory, archive_directory):
             arranged_columns_list = list(column_order_list.values())
             
             # for uploading individually selected tables
-            sheet_names = ['metabolite_calc']
-            arranged_columns_list = [column_order_list['metabolite_calc_column_order']]
-            print(arranged_columns_list)
+            # sheet_names = ['process_values']
+            # arranged_columns_list = [column_order_list['metabolite_calc_column_order']]
+            # print(arranged_columns_list)
             
             # read all relevant sheets, assuming the excel file name is same as folder name
             try:
