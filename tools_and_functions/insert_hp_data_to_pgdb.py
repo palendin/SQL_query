@@ -80,7 +80,7 @@ def insert_hp_csv_data_to_pgdb(df, table):
         cur.executemany(query, data_values)
             
         connection.commit()
-        print(f'data from {table} upload successfully')
+        print(f'upload data into postgres {table} is complete')
                  
     except (Exception) as error:
         msg = traceback.format_exc()

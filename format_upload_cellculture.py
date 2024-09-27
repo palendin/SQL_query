@@ -25,7 +25,7 @@ def resource_path(relative_path):
 def tissue_production_processing(root_directory, archive_directory):
 
     # upload trend data
-    scalex_trend_processing(root_directory, archive_directory)
+    #scalex_trend_processing(root_directory, archive_directory)
 
     # upload excel data
     for folder_name in os.listdir(root_directory):

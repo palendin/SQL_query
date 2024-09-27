@@ -132,6 +132,7 @@ def process_hp_data_and_insert_to_pg(root_directory):
                 # add experiment to spreadsheet to keep track
                 worksheet.append_row(list(experiment))
                 logger_print.info(f'appended {experiment} to google sheet')
+                print(experiment, 'has been uploaded successfully' )
                 sleep(2)
         else:
             continue
